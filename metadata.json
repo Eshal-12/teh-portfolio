@@ -1,0 +1,6 @@
+{
+  "name": "Tehleel Basit - Portfolio",
+  "description": "Professional portfolio website of Tehleel Basit, Telecommunication Engineer, Lecturer, and Data & Network Analyst from Mardan, KPK, Pakistan.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
