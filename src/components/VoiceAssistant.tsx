@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  X, Mic, MicOff, Volume2, VolumeX, Send, Bot, User, Sparkles, AlertCircle 
+  X, Mic, MicOff, Volume2, VolumeX, Send, Bot, Sparkles, AlertCircle, 
+  Play, Square, Languages, Keyboard, MessageSquare, RefreshCw 
 } from 'lucide-react';
 
 interface Message {
@@ -17,29 +18,36 @@ interface VoiceAssistantProps {
 }
 
 export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: VoiceAssistantProps) {
+  // --- SESSION STATE ---
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'ur'>('en');
+  const [isAutoListen, setIsAutoListen] = useState(true);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [showKeyboard, setShowKeyboard] = useState(false);
+
+  // --- VOICE ENGINE STATE ---
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'assistant',
-      text: "Hello! I am Tehleel's portfolio AI assistant. I support voice-to-voice interaction in both English and Urdu!\n\n🇵🇰 اردو میں بات کرنے کے لیے اوپر موجود بٹن سے اردو زبان (UR) منتخب کریں اور مائیک پر کلک کریں۔\n\n💡 Note: If you cannot speak or hear the AI, browsers often block microphone & audio access inside the embedded preview. Please click the \"Open in New Tab\" icon at the top-right of the preview window to enable full microphone permissions!",
+      text: "Welcome to Tehleel's Portfolio Voice Session. Tap 'Start Voice Session' below to initiate a natural hands-free voice conversation. You can speak in English or Urdu!",
       timestamp: new Date()
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(true);
   const [micPermissionError, setMicPermissionError] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
-  const [language, setLanguage] = useState<'en' | 'ur'>('en');
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
   const sendMessageRef = useRef<(text?: string) => void>(() => {});
+  const isSpeakingRef = useRef<boolean>(false);
 
-  // Initialize Speech Recognition
+  // --- INITIALIZE SPEECH RECOGNITION ---
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -84,35 +92,69 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
     }
   }, []);
 
-  // Dynamically switch microphone listening language when state changes
+  // Update speaking state ref for callbacks
+  useEffect(() => {
+    isSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
+
+  // Sync language with speech recognition
   useEffect(() => {
     if (recognition) {
       recognition.lang = language === 'ur' ? 'ur-PK' : 'en-US';
     }
   }, [language, recognition]);
 
-  // Scroll to bottom of chat when messages change
+  // Auto-scroll the subtitle container
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isLoading]);
 
-  // Pre-load Speech Synthesis voices on mount
+  // Pre-load speech synthesis voices
   useEffect(() => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
+      setVoicesLoaded(true);
       if (window.speechSynthesis.onvoiceschanged !== undefined) {
         window.speechSynthesis.onvoiceschanged = () => {
           window.speechSynthesis.getVoices();
+          setVoicesLoaded(true);
         };
       }
     }
   }, []);
 
-  // Helper to unlock audio playback in restricted browser frames via a user-gesture trigger
+  // --- MICROPHONE TRIGGERS ---
+  const startListening = () => {
+    if (!speechSupported || !recognition) return;
+    
+    // Cancel speaking first to prevent feedback
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
+    try {
+      recognition.start();
+    } catch (err) {
+      console.warn("Recognition start failed (likely already running):", err);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition) {
+      try {
+        recognition.stop();
+      } catch (err) {
+        console.error("Stop recognition failed:", err);
+      }
+    }
+  };
+
+  // --- AUDIO HARNESS AND VOICE SELECTION ---
   const unlockAudio = () => {
-    if ('speechSynthesis' in window && isVoiceEnabled) {
+    if ('speechSynthesis' in window) {
       try {
         const u = new SpeechSynthesisUtterance("");
         u.volume = 0;
@@ -123,43 +165,41 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
     }
   };
 
-  // Handle speaking text output
   const speakText = (text: string) => {
-    if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+    if (!isVoiceEnabled || !('speechSynthesis' in window)) {
+      // If voice output is muted, and Auto-Listen is enabled, trigger auto-listen immediately!
+      if (isSessionActive && isAutoListen) {
+        setTimeout(() => {
+          if (!isSpeakingRef.current && !isLoading) {
+            startListening();
+          }
+        }, 1000);
+      }
+      return;
+    }
 
     try {
-      // Cancel any ongoing speech
       window.speechSynthesis.cancel();
-      
-      // On some browsers (e.g. Chrome), speechSynthesis gets stuck in a paused state.
-      // Resuming explicitly here prevents any queued audio from being stuck silently.
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
       }
-      
-      // Clean up markdown syntax, parentheticals, and links for natural speaking
+
+      // Format text for natural pronunciation
       const cleanedText = text
-        .replace(/[*_`#]/g, '') // Remove bold/italic markdown
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Keep link text, remove URL
+        .replace(/[*_`#]/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
         .replace(/\s+/g, ' ')
         .trim();
 
       const utterance = new SpeechSynthesisUtterance(cleanedText);
-      
-      // Detect if text contains Urdu/Arabic characters
       const isUrduText = /[\u0600-\u06FF]/.test(cleanedText);
-      
-      if (isUrduText) {
-        utterance.lang = 'ur-PK';
-      } else {
-        utterance.lang = language === 'ur' ? 'ur-PK' : 'en-US';
-      }
-      
+      utterance.lang = isUrduText ? 'ur-PK' : (language === 'ur' ? 'ur-PK' : 'en-US');
+
       const voices = window.speechSynthesis.getVoices();
       let preferredVoice;
-      
-      if (utterance.lang.startsWith('ur') || isUrduText) {
-        // Prioritize premium/Google Hindi or Urdu voices first for the most natural Hindustani/Urdu accent
+
+      if (isUrduText || utterance.lang.startsWith('ur')) {
+        // Broad search for Urdu or Hindi (Hindi pronunciations are identical and extremely high quality)
         preferredVoice = voices.find(v => 
           (v.lang.startsWith('ur') || v.lang.startsWith('hi')) && 
           (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Siri') || v.name.includes('Premium'))
@@ -168,70 +208,61 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
           preferredVoice = voices.find(v => v.lang.startsWith('ur') || v.lang.startsWith('hi'));
         }
       } else {
-        // Choose a nice natural-sounding English voice if available
+        // High quality English voice
         preferredVoice = voices.find(v => 
           v.lang.startsWith('en') && 
-          (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Siri') || v.name.includes('Premium'))
+          (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Siri') || v.name.includes('Premium'))
         );
       }
-      
+
       if (preferredVoice) {
         utterance.voice = preferredVoice;
-        // Match the language parameter exactly with the chosen voice to prevent pronunciation synthesis errors
         utterance.lang = preferredVoice.lang;
       }
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = (e) => {
-        console.error("Utterance error event:", e);
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        stopListening(); // Don't listen to yourself
+      };
+
+      utterance.onend = () => {
         setIsSpeaking(false);
+        // Seamless Hands-Free Auto-Listen Trigger!
+        if (isSessionActive && isAutoListen && !showKeyboard) {
+          setTimeout(() => {
+            if (!isSpeakingRef.current && !isLoading) {
+              startListening();
+            }
+          }, 400); // 400ms pause for beautiful conversation cadence
+        }
+      };
+
+      utterance.onerror = (e) => {
+        console.error("Speech Synthesis error:", e);
+        setIsSpeaking(false);
+        if (isSessionActive && isAutoListen && !showKeyboard) {
+          startListening();
+        }
       };
 
       window.speechSynthesis.speak(utterance);
     } catch (err) {
-      console.error("Speech synthesis failed:", err);
+      console.error("Speech Synthesis failed:", err);
       setIsSpeaking(false);
     }
   };
 
-  // Toggle or start mic listening
-  const toggleListening = () => {
-    // Unlock speech synthesis in response to user gesture
-    unlockAudio();
-
-    if (!speechSupported) {
-      alert("Speech recognition is not supported in your browser. Please try Chrome, Edge, or Safari.");
-      return;
-    }
-
-    if (isListening) {
-      recognition.stop();
-    } else {
-      try {
-        // Cancel speaking to avoid feeding synthesized voice back to microphone
-        window.speechSynthesis.cancel();
-        setIsSpeaking(false);
-        recognition.start();
-      } catch (err) {
-        console.error("Failed to start speech recognition:", err);
-      }
-    }
-  };
-
-  // Send message to Express API
+  // --- API BACKEND CONNECTION ---
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
     if (!text) return;
 
-    // Pre-warm the SpeechSynthesis system on user click/interaction
     unlockAudio();
+    setInputText('');
 
-    if (!textToSend) {
-      setInputText('');
-    }
+    // Stop microphone stream during thinking/API fetch
+    stopListening();
 
-    // Add user message
     const userMsg: Message = { sender: 'user', text, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
@@ -244,30 +275,33 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get response from AI assistant");
+        throw new Error("API Connection failed");
       }
 
       const data = await response.json();
       const reply = data.reply || "I couldn't generate a response. Please try again.";
 
-      // Add assistant message
       setMessages(prev => [...prev, { sender: 'assistant', text: reply, timestamp: new Date() }]);
       setIsLoading(false);
 
-      // Play back response via TTS
+      // Trigger response speech
       speakText(reply);
     } catch (error) {
       console.error("Error communicating with AI assistant:", error);
+      const errorMsg = language === 'ur'
+        ? "سروڑ سے رابطہ قائم کرنے میں مسئلہ درپیش ہے۔ براہ کرم اپنا انٹرنیٹ چیک کریں۔"
+        : "I encountered a network or API issue. Please ensure your Gemini key is configured correctly.";
+      
       setMessages(prev => [...prev, { 
         sender: 'assistant', 
-        text: "I encountered an error connecting to the server. Please check your connection and verify that your server is running with a valid GEMINI_API_KEY.",
+        text: errorMsg,
         timestamp: new Date() 
       }]);
       setIsLoading(false);
     }
   };
 
-  // Keep ref updated to handleSendMessage with latest closures
+  // Keep ref up to date to prevent closure stale states
   sendMessageRef.current = handleSendMessage;
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -276,23 +310,62 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
     }
   };
 
-  // Clean speech synthesis on close
-  const handleClose = () => {
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-    if (isListening && recognition) {
-      recognition.stop();
+  // --- SESSION CONTROLS ---
+  const startSession = () => {
+    unlockAudio();
+    setIsSessionActive(true);
+    setMicPermissionError(false);
+
+    // Initial warm welcome message to kickstart the voice flow
+    const welcomeText = language === 'ur'
+      ? "السلام علیکم! میں راحیل کا اسسٹنٹ ہوں۔ میں آپ کی مدد کے لیے حاضر ہوں۔ آپ مجھ سے کچھ بھی پوچھ سکتے ہیں!"
+      : "Hello! I am Tehleel Basit's voice-activated portfolio assistant. What would you like to know about Tehleel's background, professional projects, or skills today?";
+
+    setMessages([
+      {
+        sender: 'assistant',
+        text: welcomeText,
+        timestamp: new Date()
+      }
+    ]);
+
+    // Speak welcome message immediately
+    setTimeout(() => {
+      speakText(welcomeText);
+    }, 400);
+  };
+
+  const endSession = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
+    setIsSpeaking(false);
+    stopListening();
+    setIsSessionActive(false);
+  };
+
+  const handleClose = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    stopListening();
     onClose();
   };
 
-  // Suggestions for visitor clicks
-  const suggestions = [
-    { text: "Who is Tehleel Basit?", label: "Background" },
-    { text: "What is his Heavy Industries Taxila project?", label: "HIT Defense Project" },
-    { text: "Where does Tehleel teach?", label: "Academic Lectureship" },
-    { text: "How do I contact Tehleel?", label: "Contact Info" }
-  ];
+  // Get current active status text
+  const getStatusString = () => {
+    if (isLoading) {
+      return language === 'ur' ? "جواب تیار ہو رہا ہے..." : "Thinking...";
+    }
+    if (isSpeaking) {
+      return language === 'ur' ? "بول رہا ہے..." : "Speaking response...";
+    }
+    if (isListening) {
+      return language === 'ur' ? "آپ کی بات سنی جا رہی ہے..." : "Listening...";
+    }
+    return language === 'ur' ? "رابطہ بحال (خاموش)" : "Connected (Idle)";
+  };
 
   if (!isOpen) return null;
 
@@ -314,52 +387,47 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="relative w-full sm:max-w-md bg-white border-t sm:border border-[#1C1B19]/25 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col h-[82vh] sm:h-[580px] max-h-[82vh] sm:max-h-[calc(100vh-64px)]"
       >
-        {/* Header (Solid Black with high visibility) */}
-        <div className="bg-[#1C1B19] text-white p-4 flex items-center justify-between border-b border-[#1C1B19]/10">
+        {/* Header (Premium Charcoal) */}
+        <div className="bg-[#1C1B19] text-white p-4 flex items-center justify-between border-b border-[#1C1B19]/10 shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-[#FCFBF7]/10 rounded-lg text-white">
-              <Bot className="h-5 w-5 animate-pulse" />
+              <Bot className={`h-5 w-5 ${isListening || isSpeaking ? 'animate-pulse' : ''}`} />
             </div>
             <div>
-              <h2 className="text-sm font-serif font-bold tracking-tight">Portfolio AI Assistant</h2>
+              <h2 className="text-sm font-serif font-bold tracking-tight">
+                {isSessionActive ? (language === 'ur' ? 'وائس سیشن' : 'Voice Session') : (language === 'ur' ? 'ہم کلام اسسٹنٹ' : 'Voice Assistant')}
+              </h2>
               <div className="flex items-center space-x-1.5 mt-0.5">
-                <span className={`h-1.5 w-1.5 rounded-full ${isSpeaking ? 'bg-amber-400 animate-ping' : isListening ? 'bg-emerald-500 animate-ping' : 'bg-[#FCFBF7]/40'}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${
+                  isLoading ? 'bg-blue-400 animate-pulse' :
+                  isSpeaking ? 'bg-amber-400 animate-ping' : 
+                  isListening ? 'bg-emerald-500 animate-ping' : 'bg-[#FCFBF7]/40'
+                }`} />
                 <span className="text-[10px] font-mono text-[#FCFBF7]/60 tracking-wider uppercase font-semibold">
-                  {isSpeaking ? 'Speaking Output' : isListening ? 'Listening Mic...' : language === 'ur' ? 'Urdu Mode (اردو)' : 'English Mode (EN)'}
+                  {getStatusString()}
                 </span>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            {/* Language Switcher button */}
+          <div className="flex items-center space-x-1.5">
+            {/* Lang switcher */}
             <button
               onClick={() => {
                 const nextLang = language === 'en' ? 'ur' : 'en';
                 setLanguage(nextLang);
-                if (recognition) {
-                  recognition.lang = nextLang === 'ur' ? 'ur-PK' : 'en-US';
+                if (isSessionActive) {
+                  // Speak language switched message
+                  const switchedText = nextLang === 'ur' 
+                    ? "اب زبان اردو پر سیٹ ہے۔ بات چیت جاری رکھیں۔"
+                    : "Language is now set to English. Speak anytime.";
+                  speakText(switchedText);
                 }
               }}
-              className="px-2 py-1 text-[10px] font-mono font-bold uppercase rounded bg-[#FCFBF7]/10 hover:bg-[#FCFBF7]/20 text-[#FCFBF7] transition-all cursor-pointer flex items-center space-x-1"
+              className="px-2.5 py-1 text-[10px] font-mono font-extrabold uppercase rounded bg-[#FCFBF7]/15 hover:bg-[#FCFBF7]/25 text-white transition-all cursor-pointer flex items-center space-x-1"
               title="Toggle Speak/Listen Language: English / Urdu"
             >
-              <span>{language === 'en' ? '🇬🇧 EN' : '🇵🇰 UR'}</span>
-            </button>
-
-            {/* Voice enable/disable toggle */}
-            <button
-              onClick={() => {
-                if (isVoiceEnabled) {
-                  window.speechSynthesis.cancel();
-                  setIsSpeaking(false);
-                }
-                setIsVoiceEnabled(!isVoiceEnabled);
-              }}
-              className="p-1.5 rounded-md hover:bg-[#FCFBF7]/15 text-[#FCFBF7]/80 hover:text-white transition-colors cursor-pointer"
-              title={isVoiceEnabled ? "Mute audio response" : "Unmute audio response"}
-            >
-              {isVoiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
+              <span>{language === 'en' ? '🇬🇧 EN' : '🇵🇰 اردو'}</span>
             </button>
 
             {/* Close button */}
@@ -373,143 +441,332 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
           </div>
         </div>
 
-        {/* Message Log */}
-        <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-[#FCFBF7] text-[#1C1B19]">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`flex items-start space-x-2.5 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'}`}>
-                {/* Avatar */}
-                <div className={`p-1.5 rounded-lg border text-xs shrink-0 ${msg.sender === 'user' ? 'bg-[#1C1B19] text-white border-[#1C1B19]' : 'bg-[#EAE6DF] text-[#1C1B19] border-[#1C1B19]/10'}`}>
-                  {msg.sender === 'user' ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
-                </div>
-
-                {/* Bubble */}
-                <div className={`p-3 rounded-xl text-xs font-sans shadow-xs border ${msg.sender === 'user' ? 'bg-[#1C1B19] text-white border-[#1C1B19]' : 'bg-white text-[#1C1B19] border-[#1C1B19]/10'}`}>
-                  <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                  <span className={`block text-[9px] font-mono mt-1.5 uppercase font-medium text-right ${msg.sender === 'user' ? 'text-white/60' : 'text-[#1C1B19]/40'}`}>
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="flex items-center space-x-2.5">
-                <div className="p-1.5 rounded-lg bg-[#EAE6DF] border border-[#1C1B19]/10 text-[#1C1B19]">
-                  <Bot className="h-3.5 w-3.5 animate-spin" />
-                </div>
-                <div className="bg-white border border-[#1C1B19]/10 p-3 rounded-xl flex items-center space-x-1.5 shadow-xs">
-                  <span className="h-1.5 w-1.5 bg-[#1C1B19]/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="h-1.5 w-1.5 bg-[#1C1B19]/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="h-1.5 w-1.5 bg-[#1C1B19]/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Soundwave Visualizer when Speaking or Listening */}
-          <AnimatePresence>
-            {(isSpeaking || isListening) && (
+        {/* Dynamic Screen Area */}
+        <div className="flex-grow flex flex-col bg-[#FCFBF7] overflow-hidden">
+          <AnimatePresence mode="wait">
+            {!isSessionActive ? (
+              // --- WELCOME & INTRO SCREEN ---
               <motion.div
+                key="lobby"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className={`p-3 border rounded-xl flex items-center justify-between shadow-xs ${isListening ? 'bg-emerald-50/50 border-emerald-500/20 text-emerald-800' : 'bg-amber-50/50 border-amber-500/20 text-amber-800'}`}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex-grow flex flex-col justify-between p-6 overflow-y-auto text-center"
               >
-                <div className="flex items-center space-x-2">
-                  <Sparkles className={`h-4 w-4 ${isListening ? 'text-emerald-600 animate-pulse' : 'text-amber-600 animate-spin'}`} />
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider">
-                    {isListening ? 'Listening via Microphone' : 'Speaking response...'}
-                  </span>
+                <div className="my-auto space-y-6">
+                  {/* Icon Frame */}
+                  <div className="relative mx-auto w-20 h-20 flex items-center justify-center bg-[#1C1B19] text-[#FCFBF7] rounded-full shadow-lg">
+                    <Bot className="h-10 w-10" />
+                    <span className="absolute -bottom-1 -right-1 bg-emerald-500 border-2 border-[#FCFBF7] h-5 w-5 rounded-full animate-pulse" />
+                  </div>
+
+                  {/* Header text */}
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-serif font-bold text-[#1C1B19]">
+                      {language === 'ur' ? 'راحیل کا ہم کلام اسسٹنٹ' : "Tehleel's Voice Companion"}
+                    </h3>
+                    <p className="text-xs font-sans text-[#1C1B19]/75 max-w-sm mx-auto leading-relaxed">
+                      {language === 'ur' ? (
+                        'مکمل طور پر ہاتھ ملائے بغیر (ہینڈز فری) گفتگو شروع کریں۔ آپ اردو یا انگلش میں بات چیت کر کے راحیل کے انجینئرنگ پروجیکٹس، تدریسی کام اور مہارتوں کے بارے میں تفصیل جان سکتے ہیں۔'
+                      ) : (
+                        "Initiate a fluid, hands-free conversation. Perfect for recruiters and tech leads to query Tehleel's engineering background, research milestones, or CS pedagogy."
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Language Selector Cards */}
+                  <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
+                    <button
+                      onClick={() => setLanguage('en')}
+                      className={`p-3 border rounded-xl flex flex-col items-center space-y-1 transition-all cursor-pointer ${
+                        language === 'en' 
+                          ? 'border-[#1C1B19] bg-[#EAE6DF]/40 ring-1 ring-[#1C1B19]/10' 
+                          : 'border-[#1C1B19]/10 bg-white hover:bg-[#F4F0E8]/55'
+                      }`}
+                    >
+                      <span className="text-xl">🇬🇧</span>
+                      <span className="text-xs font-bold text-[#1C1B19]">English (US)</span>
+                      <span className="text-[9px] font-mono text-[#1C1B19]/45">Native Accent</span>
+                    </button>
+                    <button
+                      onClick={() => setLanguage('ur')}
+                      className={`p-3 border rounded-xl flex flex-col items-center space-y-1 transition-all cursor-pointer ${
+                        language === 'ur' 
+                          ? 'border-[#1C1B19] bg-[#EAE6DF]/40 ring-1 ring-[#1C1B19]/10' 
+                          : 'border-[#1C1B19]/10 bg-white hover:bg-[#F4F0E8]/55'
+                      }`}
+                    >
+                      <span className="text-xl">🇵🇰</span>
+                      <span className="text-xs font-bold text-[#1C1B19]">اردو (Urdu)</span>
+                      <span className="text-[9px] font-mono text-[#1C1B19]/45">سلیس ہندوستانی تلفظ</span>
+                    </button>
+                  </div>
+
+                  {/* Device Note */}
+                  <div className="p-3 border border-[#1C1B19]/5 bg-white rounded-lg inline-flex items-center space-x-2 text-[10px] font-mono text-left max-w-xs text-[#1C1B19]/60 leading-normal">
+                    <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
+                    <span>
+                      {language === 'ur' 
+                        ? 'مائیکروفون اور آڈیو کی فل رسائی کے لیے پریمیم کروم یا سفاری استعمال کریں۔' 
+                        : 'Utilizes Web Speech engines. Best experienced in Chrome, Edge, or Safari.'}
+                    </span>
+                  </div>
                 </div>
-                {/* Visualizer bars */}
-                <div className="flex items-end space-x-0.5 h-4 px-1">
-                  {[1, 2, 3, 4, 5, 6].map((bar) => (
-                    <span 
-                      key={bar} 
-                      className={`w-0.5 rounded-full ${isListening ? 'bg-emerald-500' : 'bg-amber-500'} animate-[bounce_1s_infinite]`}
-                      style={{ 
-                        animationDelay: `${bar * 120}ms`,
-                        height: `${Math.random() * 100}%`
+
+                {/* Big Tactile Start Button */}
+                <button
+                  onClick={startSession}
+                  className="w-full py-4 bg-[#1C1B19] text-white rounded-xl font-sans font-bold text-sm tracking-wide hover:bg-[#2B2A27] transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-md mt-4 active:scale-[0.99]"
+                >
+                  <Play className="h-4 w-4 fill-white" />
+                  <span>
+                    {language === 'ur' ? 'بات چیت شروع کریں (وائس سیشن)' : 'Start Voice Conversation'}
+                  </span>
+                </button>
+              </motion.div>
+            ) : (
+              // --- ACTIVE VOICE STREAM SCREEN ---
+              <motion.div
+                key="active-session"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="flex-grow flex flex-col justify-between p-4 overflow-hidden relative"
+              >
+                {/* Visualizer Canvas Area (Center Stage) */}
+                <div className="flex-grow flex flex-col items-center justify-center min-h-[180px] max-h-[260px] relative">
+                  {/* Interactive Waveform / Pulsing Ring Visualizer */}
+                  <div className="relative flex items-center justify-center w-40 h-40">
+                    {/* Ring 1 (Pulse) */}
+                    <motion.div 
+                      className={`absolute inset-0 rounded-full border-2 ${
+                        isLoading ? 'border-blue-500/20' :
+                        isSpeaking ? 'border-amber-500/30' : 
+                        isListening ? 'border-emerald-500/35' : 'border-[#1C1B19]/10'
+                      }`}
+                      animate={
+                        isLoading ? { scale: [1, 1.15, 1], rotate: 360 } :
+                        isSpeaking ? { scale: [1, 1.35, 1] } :
+                        isListening ? { scale: [1, 1.5, 1], opacity: [0.9, 0.2, 0.9] } :
+                        { scale: [1, 1.05, 1] }
+                      }
+                      transition={{
+                        duration: isListening ? 0.75 : isSpeaking ? 1.2 : isLoading ? 2.5 : 2.0,
+                        repeat: Infinity,
+                        ease: "easeInOut"
                       }}
                     />
-                  ))}
+
+                    {/* Ring 2 (Pulse Delay) */}
+                    <motion.div 
+                      className={`absolute -inset-4 rounded-full border ${
+                        isLoading ? 'border-blue-300/10' :
+                        isSpeaking ? 'border-amber-400/20' : 
+                        isListening ? 'border-emerald-400/25' : 'border-[#1C1B19]/5'
+                      }`}
+                      animate={
+                        isLoading ? { scale: [1, 1.2, 1] } :
+                        isSpeaking ? { scale: [1, 1.5, 1] } :
+                        isListening ? { scale: [1, 1.8, 1], opacity: [0.7, 0.1, 0.7] } :
+                        { scale: [1, 1.1, 1] }
+                      }
+                      transition={{
+                        duration: isListening ? 0.75 : isSpeaking ? 1.2 : 2.0,
+                        delay: 0.25,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+
+                    {/* Ring 3 (Pulse Active) */}
+                    {isListening && (
+                      <motion.div 
+                        className="absolute -inset-8 rounded-full border border-emerald-300/15"
+                        animate={{ scale: [1, 2.1, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{
+                          duration: 0.75,
+                          delay: 0.45,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    )}
+
+                    {/* Central Glowing Orb Core */}
+                    <div className={`w-28 h-28 rounded-full flex flex-col items-center justify-center text-white shadow-xl transition-all duration-500 z-10 ${
+                      isLoading ? 'bg-blue-600 ring-4 ring-blue-100' :
+                      isSpeaking ? 'bg-amber-500 ring-4 ring-amber-100' : 
+                      isListening ? 'bg-emerald-500 ring-4 ring-emerald-100 animate-pulse' : 'bg-[#1C1B19] ring-4 ring-neutral-200'
+                    }`}>
+                      {isLoading ? (
+                        <RefreshCw className="h-8 w-8 animate-spin" />
+                      ) : isSpeaking ? (
+                        <Volume2 className="h-8 w-8 animate-bounce" />
+                      ) : isListening ? (
+                        <Mic className="h-8 w-8" />
+                      ) : (
+                        <Bot className="h-8 w-8" />
+                      )}
+                      
+                      <span className="text-[8px] font-mono uppercase tracking-widest font-extrabold mt-1.5 opacity-90">
+                        {isLoading ? 'Thinking' : isSpeaking ? 'Speaking' : isListening ? 'Listening' : 'Idle'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subtitle / Live Transcript Overlay Panel */}
+                <div className="flex-grow flex flex-col bg-white border border-[#1C1B19]/10 rounded-xl overflow-hidden shadow-2xs h-[130px] min-h-[110px] p-3 text-left">
+                  <span className="text-[8px] font-mono text-[#1C1B19]/40 uppercase tracking-widest font-bold mb-1.5 block">
+                    {language === 'ur' ? 'براہ راست اسکرپٹ / ترجمہ' : 'Real-Time Transcript Subtitles'}
+                  </span>
+                  
+                  <div className="flex-grow overflow-y-auto space-y-2.5 pr-1 scrollbar-thin">
+                    {messages.length === 0 ? (
+                      <div className="text-[11px] text-[#1C1B19]/40 font-serif italic">
+                        {language === 'ur' ? 'بات چیت شروع کریں۔ اسکرپٹ یہاں نظر آئے گی...' : 'Voice subtitles will appear here as you speak...'}
+                      </div>
+                    ) : (
+                      messages.slice(-5).map((msg, idx) => (
+                        <div key={idx} className="space-y-0.5">
+                          <span className={`text-[8px] font-mono font-bold uppercase tracking-wider ${
+                            msg.sender === 'user' ? 'text-emerald-700' : 'text-slate-600'
+                          }`}>
+                            {msg.sender === 'user' ? (language === 'ur' ? 'آپ' : 'You') : (language === 'ur' ? 'اسسٹنٹ' : 'AI Assistant')}
+                          </span>
+                          <p className={`text-[11px] leading-relaxed font-sans ${
+                            msg.sender === 'user' ? 'text-emerald-950 font-semibold' : 'text-neutral-800'
+                          }`}>
+                            {msg.text}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                    {isLoading && (
+                      <div className="flex items-center space-x-1.5 text-[11px] text-blue-600 font-medium">
+                        <span className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <span className="ml-1 font-mono text-[9px] uppercase tracking-wider">Formulating reply</span>
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </div>
+
+                {/* Keyboard Text Input Drawer (Hidden by default, shown via keyboard toggle) */}
+                <AnimatePresence>
+                  {showKeyboard && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="border-t border-[#1C1B19]/10 mt-2 bg-white rounded-lg overflow-hidden flex items-center space-x-1.5 p-1.5 shrink-0"
+                    >
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        placeholder={language === 'ur' ? "مینوئل سوال لکھیں..." : "Type custom prompt..."}
+                        className="flex-grow px-3 py-1.5 border border-[#1C1B19]/10 rounded-md text-xs focus:outline-none focus:border-[#1C1B19]/45 text-[#1C1B19]"
+                      />
+                      <button
+                        onClick={() => handleSendMessage()}
+                        disabled={!inputText.trim()}
+                        className="p-1.5 bg-[#1C1B19] hover:bg-neutral-800 disabled:opacity-30 text-white rounded-md cursor-pointer"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Error Banner */}
+                {micPermissionError && (
+                  <div className="mt-2 p-2 border border-red-500/10 bg-red-50 text-red-800 rounded-lg flex items-start space-x-2 shrink-0">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-red-600" />
+                    <div className="text-[10px] font-sans font-medium leading-normal">
+                      <strong>Mic Access Blocked:</strong> Click the <strong>"Open in New Tab"</strong> icon at the top right of the preview frame to allow full browser microphone permissions.
+                    </div>
+                  </div>
+                )}
+
+                {/* Voice Session Control Dashboard */}
+                <div className="mt-3 bg-white border border-[#1C1B19]/10 rounded-xl p-3 space-y-2.5 shrink-0">
+                  <div className="flex items-center justify-between text-[10px] font-mono">
+                    {/* Auto listen switch */}
+                    <button
+                      onClick={() => setIsAutoListen(!isAutoListen)}
+                      className="flex items-center space-x-1.5 cursor-pointer text-[#1C1B19]/70 hover:text-[#1C1B19]"
+                    >
+                      <span className={`h-2.5 w-2.5 rounded-full ${isAutoListen ? 'bg-emerald-500' : 'bg-red-400'}`} />
+                      <span className="font-bold tracking-tight">
+                        {language === 'ur' ? `ہینڈز فری: ${isAutoListen ? 'آن' : 'آف'}` : `Hands-Free: ${isAutoListen ? 'ON' : 'OFF'}`}
+                      </span>
+                    </button>
+
+                    {/* Voice sound switch */}
+                    <button
+                      onClick={() => {
+                        if (isVoiceEnabled) {
+                          window.speechSynthesis.cancel();
+                          setIsSpeaking(false);
+                        }
+                        setIsVoiceEnabled(!isVoiceEnabled);
+                      }}
+                      className="flex items-center space-x-1.5 cursor-pointer text-[#1C1B19]/70 hover:text-[#1C1B19]"
+                    >
+                      {isVoiceEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5 text-red-400" />}
+                      <span className="font-bold tracking-tight">
+                        {language === 'ur' ? `آواز: ${isVoiceEnabled ? 'کھلی' : 'بند'}` : `Audio Out: ${isVoiceEnabled ? 'ON' : 'OFF'}`}
+                      </span>
+                    </button>
+
+                    {/* Keyboard Switcher */}
+                    <button
+                      onClick={() => setShowKeyboard(!showKeyboard)}
+                      className={`flex items-center space-x-1 cursor-pointer transition-colors ${showKeyboard ? 'text-[#1C1B19] font-bold' : 'text-[#1C1B19]/50 hover:text-[#1C1B19]'}`}
+                    >
+                      <Keyboard className="h-3.5 w-3.5" />
+                      <span>{language === 'ur' ? 'کی بورڈ' : 'Keyboard'}</span>
+                    </button>
+                  </div>
+
+                  {/* Core Mic Button & Stop Session Badge */}
+                  <div className="flex items-center space-x-2 pt-1">
+                    {/* Main Mic Button (To talk if not in auto-listen, or to manually trigger speech) */}
+                    <button
+                      onClick={isListening ? stopListening : startListening}
+                      disabled={isLoading}
+                      className={`flex-grow py-2.5 px-4 rounded-lg font-sans font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                        isListening 
+                          ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                          : 'bg-[#1C1B19] hover:bg-[#2B2A27] text-white disabled:opacity-50'
+                      }`}
+                    >
+                      {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                      <span>
+                        {isListening 
+                          ? (language === 'ur' ? 'مائیک بند کریں' : 'Stop Listening') 
+                          : (language === 'ur' ? 'بولنے کے لیے ٹیپ کریں' : 'Tap to Talk')}
+                      </span>
+                    </button>
+
+                    {/* End Session Button */}
+                    <button
+                      onClick={endSession}
+                      className="px-3.5 py-2.5 border border-red-500/25 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-sans font-bold text-xs transition-colors cursor-pointer flex items-center justify-center"
+                      title={language === 'ur' ? 'سیشن ختم کریں' : 'End Voice Session'}
+                    >
+                      <Square className="h-3.5 w-3.5 fill-red-700" />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {micPermissionError && (
-            <div className="p-3 border border-red-500/10 bg-red-50/50 text-red-800 rounded-xl flex items-start space-x-2">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
-              <div className="text-[11px] font-sans font-medium">
-                <strong>Microphone Permission Error:</strong> Please enable microphone access in your browser settings to use voice input features.
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Suggestion Chips */}
-        <div className="p-3 border-t border-[#1C1B19]/10 bg-white">
-          <p className="text-[10px] font-mono text-[#1C1B19]/50 uppercase tracking-widest font-bold mb-1.5 sm:mb-2 px-1">Frequently Asked Guides</p>
-          <div className="flex sm:flex-wrap gap-1.5 overflow-x-auto sm:overflow-x-visible pb-1 sm:pb-0 scrollbar-none px-1">
-            {suggestions.map((sug, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  if (sug.label === "Contact Info") {
-                    handleClose();
-                    onNavigateContact();
-                  } else {
-                    handleSendMessage(sug.text);
-                  }
-                }}
-                className="px-2.5 py-1.5 border border-[#1C1B19]/10 hover:border-[#1C1B19]/35 bg-[#FCFBF7] hover:bg-[#F4F0E8] text-[10px] font-sans font-semibold text-[#1C1B19]/80 rounded-md transition-colors text-left cursor-pointer shadow-2xs shrink-0 whitespace-nowrap sm:whitespace-normal"
-              >
-                {sug.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Input Bar (Solid high contrast controls) */}
-        <div className="p-4 bg-white border-t border-[#1C1B19]/10 flex items-center space-x-2 pb-5 sm:pb-4">
-          {speechSupported && (
-            <button
-              onClick={toggleListening}
-              className={`p-3.5 rounded-full transition-all flex items-center justify-center cursor-pointer border ${isListening ? 'bg-red-500 border-red-600 text-white animate-pulse' : 'bg-[#1C1B19] border-[#1C1B19] text-white hover:bg-neutral-800'}`}
-              title={isListening ? "Stop listening" : "Start speaking"}
-            >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </button>
-          )}
-
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder={isListening ? "Listening... speak now" : "Type your inquiry..."}
-            disabled={isListening}
-            className="flex-grow px-4 py-3 border border-[#1C1B19]/15 rounded-full text-base sm:text-xs font-sans focus:outline-none focus:border-[#1C1B19]/45 focus:bg-[#FCFBF7] disabled:opacity-50 transition-colors bg-white text-[#1C1B19]"
-          />
-
-          <button
-            onClick={() => handleSendMessage()}
-            disabled={!inputText.trim() || isListening}
-            className="p-3.5 bg-[#1C1B19] hover:bg-neutral-800 disabled:opacity-40 text-white rounded-full transition-all flex items-center justify-center cursor-pointer"
-            title="Send inquiry"
-          >
-            <Send className="h-4 w-4" />
-          </button>
         </div>
       </motion.div>
     </div>
