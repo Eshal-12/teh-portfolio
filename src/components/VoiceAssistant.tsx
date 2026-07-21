@@ -297,7 +297,7 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end p-4 sm:p-6 md:p-8 select-none">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end p-0 sm:p-6 md:p-8 select-none">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -312,7 +312,7 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-md bg-white border border-[#1C1B19]/25 rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col h-full max-h-[calc(100vh-32px)] sm:max-h-[calc(100vh-64px)] sm:h-[580px]"
+        className="relative w-full sm:max-w-md bg-white border-t sm:border border-[#1C1B19]/25 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col h-[82vh] sm:h-[580px] max-h-[82vh] sm:max-h-[calc(100vh-64px)]"
       >
         {/* Header (Solid Black with high visibility) */}
         <div className="bg-[#1C1B19] text-white p-4 flex items-center justify-between border-b border-[#1C1B19]/10">
@@ -458,8 +458,8 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
 
         {/* Suggestion Chips */}
         <div className="p-3 border-t border-[#1C1B19]/10 bg-white">
-          <p className="text-[10px] font-mono text-[#1C1B19]/50 uppercase tracking-widest font-bold mb-2">Frequently Asked Guides</p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="text-[10px] font-mono text-[#1C1B19]/50 uppercase tracking-widest font-bold mb-1.5 sm:mb-2 px-1">Frequently Asked Guides</p>
+          <div className="flex sm:flex-wrap gap-1.5 overflow-x-auto sm:overflow-x-visible pb-1 sm:pb-0 scrollbar-none px-1">
             {suggestions.map((sug, idx) => (
               <button
                 key={idx}
@@ -471,7 +471,7 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
                     handleSendMessage(sug.text);
                   }
                 }}
-                className="px-2.5 py-1.5 border border-[#1C1B19]/10 hover:border-[#1C1B19]/35 bg-[#FCFBF7] hover:bg-[#F4F0E8] text-[10px] font-sans font-semibold text-[#1C1B19]/80 rounded-md transition-colors text-left cursor-pointer shadow-2xs"
+                className="px-2.5 py-1.5 border border-[#1C1B19]/10 hover:border-[#1C1B19]/35 bg-[#FCFBF7] hover:bg-[#F4F0E8] text-[10px] font-sans font-semibold text-[#1C1B19]/80 rounded-md transition-colors text-left cursor-pointer shadow-2xs shrink-0 whitespace-nowrap sm:whitespace-normal"
               >
                 {sug.label}
               </button>
@@ -480,7 +480,7 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
         </div>
 
         {/* Input Bar (Solid high contrast controls) */}
-        <div className="p-4 bg-white border-t border-[#1C1B19]/10 flex items-center space-x-2">
+        <div className="p-4 bg-white border-t border-[#1C1B19]/10 flex items-center space-x-2 pb-5 sm:pb-4">
           {speechSupported && (
             <button
               onClick={toggleListening}
@@ -499,7 +499,7 @@ export default function VoiceAssistant({ isOpen, onClose, onNavigateContact }: V
             onKeyDown={handleKeyPress}
             placeholder={isListening ? "Listening... speak now" : "Type your inquiry..."}
             disabled={isListening}
-            className="flex-grow px-3 py-3 border border-[#1C1B19]/15 rounded-full text-xs font-sans focus:outline-none focus:border-[#1C1B19]/45 focus:bg-[#FCFBF7] disabled:opacity-50 transition-colors bg-white text-[#1C1B19]"
+            className="flex-grow px-4 py-3 border border-[#1C1B19]/15 rounded-full text-base sm:text-xs font-sans focus:outline-none focus:border-[#1C1B19]/45 focus:bg-[#FCFBF7] disabled:opacity-50 transition-colors bg-white text-[#1C1B19]"
           />
 
           <button
