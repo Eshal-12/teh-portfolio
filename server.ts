@@ -65,7 +65,7 @@ If a visitor asks about voice features, tell them that this assistant features l
 Language guidelines: If the visitor speaks to you in Urdu (whether in Arabic script or Romanized Urdu), you MUST respond back in fluent, professional, and warm Urdu. Avoid long, complex text and write conversational sentences suitable for speech synthesis output.`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-3.6-flash",
         contents: message,
         config: {
           systemInstruction,
