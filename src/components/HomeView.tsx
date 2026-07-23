@@ -9,10 +9,9 @@ import { GalleryItem } from '../types';
 
 interface HomeViewProps {
   setCurrentPage: (page: import('../types').PageType) => void;
-  openAiAssistant: () => void;
 }
 
-export default function HomeView({ setCurrentPage, openAiAssistant }: HomeViewProps) {
+export default function HomeView({ setCurrentPage }: HomeViewProps) {
   const [activeCategory, setActiveCategory] = useState<'all' | 'academic' | 'research' | 'awards' | 'portrait'>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
 
@@ -87,7 +86,7 @@ export default function HomeView({ setCurrentPage, openAiAssistant }: HomeViewPr
                 <img
                   src={personalInfo.avatar}
                   alt="Tehleel Basit - Telecommunication Engineer"
-                  className="w-full h-auto aspect-square object-cover filter contrast-[1.01]"
+                  className="w-full h-auto aspect-square object-cover object-top filter contrast-[1.01]"
                   referrerPolicy="no-referrer"
                 />
               </div>

@@ -9,7 +9,6 @@ import EducationView from './components/EducationView';
 import ExperienceView from './components/ExperienceView';
 import ResearchView from './components/ResearchView';
 import SkillsView from './components/SkillsView';
-import VoiceAssistant from './components/VoiceAssistant';
 import FloatingDock from './components/FloatingDock';
 import BlogView from './components/BlogView';
 
@@ -17,7 +16,6 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isAiOpen, setIsAiOpen] = useState(false);
 
   // Monitor scroll height to show back-to-top button
   useEffect(() => {
@@ -40,7 +38,7 @@ export default function App() {
   const renderCurrentView = () => {
     switch (currentPage) {
       case 'home':
-        return <HomeView setCurrentPage={setCurrentPage} openAiAssistant={() => setIsAiOpen(true)} />;
+        return <HomeView setCurrentPage={setCurrentPage} />;
       case 'education':
         return <EducationView />;
       case 'experience':
@@ -52,7 +50,7 @@ export default function App() {
       case 'blog':
         return <BlogView />;
       default:
-        return <HomeView setCurrentPage={setCurrentPage} openAiAssistant={() => setIsAiOpen(true)} />;
+        return <HomeView setCurrentPage={setCurrentPage} />;
     }
   };
 
@@ -146,9 +144,8 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Floating Draggable Dock for Voice AI and Direct Contact */}
+      {/* Floating Draggable Dock for Direct Contact */}
       <FloatingDock 
-        onOpenAiAssistant={() => setIsAiOpen(true)}
         onNavigateContact={() => {
           setCurrentPage('skills');
           setTimeout(() => {
@@ -174,25 +171,6 @@ export default function App() {
           >
             <ChevronUp className="h-5 w-5" />
           </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Global Voice-enabled AI Assistant Modal */}
-      <AnimatePresence>
-        {isAiOpen && (
-          <VoiceAssistant 
-            isOpen={isAiOpen} 
-            onClose={() => setIsAiOpen(false)} 
-            onNavigateContact={() => {
-              setCurrentPage('skills');
-              setTimeout(() => {
-                const element = document.getElementById('skills-page-title');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }, 200);
-            }}
-          />
         )}
       </AnimatePresence>
     </div>
