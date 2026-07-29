@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wrench, Send, MessageSquare, Languages } from 'lucide-react';
+import { Wrench, Send, MessageSquare, Languages, Loader2 } from 'lucide-react';
 import { skillsList, certificationsList, languages, interests, personalInfo } from '../data';
 
 export default function SkillsView() {
   const [activeCategory, setActiveCategory] = useState<'all' | 'telecom' | 'analysis' | 'software' | 'soft'>('all');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
 
   const categories: { id: typeof activeCategory; label: string }[] = [
@@ -33,14 +35,44 @@ export default function SkillsView() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
-    setFormSubmitted(true);
-    setTimeout(() => {
-      setFormSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 4000);
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('https://formspree.io/f/maqrvepq', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          _replyto: formData.email,
+          _subject: formData.subject ? `[Portfolio] ${formData.subject}` : `[Portfolio Message] from ${formData.name}`,
+          message: formData.message
+        })
+      });
+
+      if (response.ok) {
+        setFormSubmitted(true);
+      } else {
+        const data = await response.json().catch(() => null);
+        if (data && data.errors && data.errors.length > 0) {
+          setSubmitError(data.errors.map((err: { message: string }) => err.message).join(', '));
+        } else {
+          setSubmitError('Unable to dispatch message right now. Please send directly via email below.');
+        }
+      }
+    } catch (err) {
+      setSubmitError('Network error encountered. You can also send directly via email below.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -177,13 +209,22 @@ export default function SkillsView() {
               {!formSubmitted ? (
                 <motion.form 
                   key="contact-form"
+                  action="https://formspree.io/f/maqrvepq"
+                  method="POST"
                   onSubmit={handleFormSubmit} 
                   className="space-y-4 text-xs font-mono"
                 >
+                  {submitError && (
+                    <div className="p-3 border border-red-500/20 bg-red-50 text-red-700 text-xs font-sans rounded-lg">
+                      {submitError}
+                    </div>
+                  )}
+
                   <div className="space-y-1">
                     <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Full Name *</label>
                     <input
                       type="text"
+                      name="name"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -196,6 +237,7 @@ export default function SkillsView() {
                     <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Email coordinates *</label>
                     <input
                       type="email"
+                      name="email"
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -208,6 +250,7 @@ export default function SkillsView() {
                     <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Subject Heading</label>
                     <input
                       type="text"
+                      name="subject"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       placeholder="e.g. Research Collaboration Inquiry"
@@ -218,6 +261,7 @@ export default function SkillsView() {
                   <div className="space-y-1">
                     <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Message Content *</label>
                     <textarea
+                      name="message"
                       required
                       rows={4}
                       value={formData.message}
@@ -229,10 +273,20 @@ export default function SkillsView() {
 
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[#1C1B19] hover:bg-[#1C1B19]/90 text-white rounded-lg font-sans font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
+                    disabled={isSubmitting}
+                    className="w-full py-3 bg-[#1C1B19] hover:bg-[#1C1B19]/90 disabled:opacity-60 text-white rounded-lg font-sans font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
                   >
-                    <Send className="h-3.5 w-3.5" />
-                    <span>Send Message</span>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <span>Dispatching...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-3.5 w-3.5" />
+                        <span>Send Message</span>
+                      </>
+                    )}
                   </button>
                 </motion.form>
               ) : (
@@ -248,8 +302,17 @@ export default function SkillsView() {
                   </div>
                   <h3 className="text-xs font-mono font-bold uppercase text-[#1C1B19]">Message Dispatched!</h3>
                   <p className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/75 leading-relaxed">
-                    Thank you, <strong>{formData.name}</strong>. Your inquiry has been simulated as successfully sent. We will get back to you shortly!
+                    Thank you, <strong>{formData.name || 'Visitor'}</strong>. Your message has been successfully routed via Formspree to Tehleel Basit.
                   </p>
+                  <button
+                    onClick={() => {
+                      setFormSubmitted(false);
+                      setFormData({ name: '', email: '', subject: '', message: '' });
+                    }}
+                    className="mt-2 text-[10px] font-mono font-bold uppercase underline text-[#1C1B19] hover:text-[#1C1B19]/70 cursor-pointer"
+                  >
+                    Send Another Message
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
