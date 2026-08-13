@@ -130,15 +130,9 @@ export default function App() {
             </div>
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-mono font-bold uppercase tracking-wider text-[#1C1B19]/60">
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-mono font-bold uppercase tracking-wider text-[#1C1B19]/60 border-t border-[#1C1B19]/10">
             <div>
-              &copy; 2026 Tehleel Basit. Portfolio Ledger.
-            </div>
-            <div className="border border-[#1C1B19]/15 px-2.5 py-1 bg-white">
-              Doc Ref: TB-RES-2026-KPK
-            </div>
-            <div>
-              Status: Active Candidate
+              &copy; {new Date().getFullYear()} Tehleel Basit. All rights reserved.
             </div>
           </div>
         </div>

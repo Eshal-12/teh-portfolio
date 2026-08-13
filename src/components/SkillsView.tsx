@@ -35,6 +35,14 @@ export default function SkillsView() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
   };
 
+  const handleDirectMailto = () => {
+    const subject = encodeURIComponent(formData.subject ? `[Portfolio Inquiry] ${formData.subject}` : `[Portfolio Inquiry] from ${formData.name || 'Visitor'}`);
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    );
+    window.location.href = `mailto:${personalInfo.email}?cc=${personalInfo.alternateEmail}&subject=${subject}&body=${body}`;
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
@@ -53,6 +61,7 @@ export default function SkillsView() {
           name: formData.name,
           email: formData.email,
           _replyto: formData.email,
+          _to: personalInfo.email,
           _subject: formData.subject ? `[Portfolio] ${formData.subject}` : `[Portfolio Message] from ${formData.name}`,
           message: formData.message
         })
@@ -65,11 +74,11 @@ export default function SkillsView() {
         if (data && data.errors && data.errors.length > 0) {
           setSubmitError(data.errors.map((err: { message: string }) => err.message).join(', '));
         } else {
-          setSubmitError('Unable to dispatch message right now. Please send directly via email below.');
+          setSubmitError('Formspree endpoint unconfirmed or pending. Use the "Send via Email App" button below to email directly.');
         }
       }
     } catch (err) {
-      setSubmitError('Network error encountered. You can also send directly via email below.');
+      setSubmitError('Network error encountered. Use the "Send via Email App" button below to email directly.');
     } finally {
       setIsSubmitting(false);
     }
@@ -200,10 +209,15 @@ export default function SkillsView() {
         {/* Right: Contact Form & Reach Me */}
         <div className="lg:col-span-5 space-y-8">
           <div className="p-6 border border-[#1C1B19]/10 bg-white rounded-xl shadow-sm space-y-6">
-            <h2 className="text-md font-bold uppercase tracking-tight font-sans text-[#1C1B19] flex items-center">
-              <MessageSquare className="h-4 w-4 text-[#1C1B19] mr-2" />
-              Direct Message Dispatch
-            </h2>
+            <div>
+              <h2 className="text-md font-bold uppercase tracking-tight font-sans text-[#1C1B19] flex items-center">
+                <MessageSquare className="h-4 w-4 text-[#1C1B19] mr-2" />
+                Direct Message Dispatch
+              </h2>
+              <p className="text-[11px] font-mono text-[#1C1B19]/60 mt-1">
+                Dispatches to: <span className="font-bold text-[#1C1B19]">{personalInfo.email}</span>
+              </p>
+            </div>
 
             <AnimatePresence mode="wait">
               {!formSubmitted ? (
@@ -214,9 +228,18 @@ export default function SkillsView() {
                   onSubmit={handleFormSubmit} 
                   className="space-y-4 text-xs font-mono"
                 >
+                  <input type="text" name="_gotcha" style={{ display: 'none' }} />
+
                   {submitError && (
-                    <div className="p-3 border border-red-500/20 bg-red-50 text-red-700 text-xs font-sans rounded-lg">
-                      {submitError}
+                    <div className="p-3 border border-red-500/20 bg-red-50 text-red-700 text-xs font-sans rounded-lg space-y-2">
+                      <p>{submitError}</p>
+                      <button
+                        type="button"
+                        onClick={handleDirectMailto}
+                        className="text-[11px] font-mono font-bold uppercase underline text-red-900 hover:text-black cursor-pointer block"
+                      >
+                        Click here to send via your email client (Gmail / Outlook) →
+                      </button>
                     </div>
                   )}
 
@@ -271,23 +294,33 @@ export default function SkillsView() {
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3 bg-[#1C1B19] hover:bg-[#1C1B19]/90 disabled:opacity-60 text-white rounded-lg font-sans font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        <span>Dispatching...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-3.5 w-3.5" />
-                        <span>Send Message</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-3 bg-[#1C1B19] hover:bg-[#1C1B19]/90 disabled:opacity-60 text-white rounded-lg font-sans font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Dispatching...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-3.5 w-3.5" />
+                          <span>Send Message</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleDirectMailto}
+                      className="w-full py-2.5 border border-[#1C1B19]/20 hover:bg-[#F4F0E8] text-[#1C1B19] rounded-lg font-sans font-bold text-[11px] uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
+                    >
+                      <span>Open in Email App (Gmail / Outlook)</span>
+                    </button>
+                  </div>
                 </motion.form>
               ) : (
                 <motion.div
@@ -302,17 +335,25 @@ export default function SkillsView() {
                   </div>
                   <h3 className="text-xs font-mono font-bold uppercase text-[#1C1B19]">Message Dispatched!</h3>
                   <p className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/75 leading-relaxed">
-                    Thank you, <strong>{formData.name || 'Visitor'}</strong>. Your message has been successfully routed via Formspree to Tehleel Basit.
+                    Thank you, <strong>{formData.name || 'Visitor'}</strong>. Your message has been routed to <strong>{personalInfo.email}</strong>.
                   </p>
-                  <button
-                    onClick={() => {
-                      setFormSubmitted(false);
-                      setFormData({ name: '', email: '', subject: '', message: '' });
-                    }}
-                    className="mt-2 text-[10px] font-mono font-bold uppercase underline text-[#1C1B19] hover:text-[#1C1B19]/70 cursor-pointer"
-                  >
-                    Send Another Message
-                  </button>
+                  <div className="pt-2 flex flex-col items-center space-y-2">
+                    <button
+                      onClick={handleDirectMailto}
+                      className="text-[11px] font-mono font-bold uppercase underline text-[#1C1B19] hover:text-[#1C1B19]/70 cursor-pointer"
+                    >
+                      Also Open in your Email App →
+                    </button>
+                    <button
+                      onClick={() => {
+                        setFormSubmitted(false);
+                        setFormData({ name: '', email: '', subject: '', message: '' });
+                      }}
+                      className="text-[10px] font-mono font-bold uppercase text-[#1C1B19]/50 hover:text-[#1C1B19] cursor-pointer"
+                    >
+                      Send Another Message
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

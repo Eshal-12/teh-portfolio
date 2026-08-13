@@ -75,7 +75,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
 
         </motion.div>
 
-        {/* Right column - Elegant Frame for Profile Image */}
+        {/* Right column - Frame for Profile Image */}
         <motion.div 
           variants={itemVariants} 
           className="lg:col-span-5 flex flex-col items-center"
@@ -87,6 +87,9 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
                   src={personalInfo.avatar}
                   alt="Tehleel Basit - Telecommunication Engineer"
                   className="w-full h-auto aspect-square object-cover object-top filter contrast-[1.01]"
+                  loading="eager"
+                  decoding="sync"
+                  fetchPriority="high"
                   referrerPolicy="no-referrer"
                 />
               </div>
@@ -94,9 +97,6 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
                 <span className="h-1.5 w-1.5 rounded-full bg-[#1C1B19]" />
                 <span className="tracking-widest uppercase">Mardan · SEC: NETWORK ENG.</span>
               </div>
-            </div>
-            <div className="text-[9px] uppercase font-mono font-bold tracking-widest text-right mt-2.5 text-[#1C1B19]/40">
-              Primary Portrait Record
             </div>
           </div>
         </motion.div>
