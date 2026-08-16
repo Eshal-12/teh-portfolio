@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wrench, Send, MessageSquare, Languages, Loader2 } from 'lucide-react';
+import { Wrench, Send, MessageSquare, Languages, ExternalLink, Check } from 'lucide-react';
 import { skillsList, certificationsList, languages, interests, personalInfo } from '../data';
 
 export default function SkillsView() {
   const [activeCategory, setActiveCategory] = useState<'all' | 'telecom' | 'analysis' | 'software' | 'soft'>('all');
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', contact: '', subject: '', message: '' });
 
   const categories: { id: typeof activeCategory; label: string }[] = [
     { id: 'all', label: 'All Competencies' },
@@ -35,53 +33,27 @@ export default function SkillsView() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
   };
 
-  const handleDirectMailto = () => {
-    const subject = encodeURIComponent(formData.subject ? `[Portfolio Inquiry] ${formData.subject}` : `[Portfolio Inquiry] from ${formData.name || 'Visitor'}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-    );
-    window.location.href = `mailto:${personalInfo.email}?cc=${personalInfo.alternateEmail}&subject=${subject}&body=${body}`;
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const response = await fetch('https://formspree.io/f/maqrvepq', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          _replyto: formData.email,
-          _to: personalInfo.email,
-          _subject: formData.subject ? `[Portfolio] ${formData.subject}` : `[Portfolio Message] from ${formData.name}`,
-          message: formData.message
-        })
-      });
-
-      if (response.ok) {
-        setFormSubmitted(true);
-      } else {
-        const data = await response.json().catch(() => null);
-        if (data && data.errors && data.errors.length > 0) {
-          setSubmitError(data.errors.map((err: { message: string }) => err.message).join(', '));
-        } else {
-          setSubmitError('Formspree endpoint unconfirmed or pending. Use the "Send via Email App" button below to email directly.');
-        }
-      }
-    } catch (err) {
-      setSubmitError('Network error encountered. Use the "Send via Email App" button below to email directly.');
-    } finally {
-      setIsSubmitting(false);
+  const handleFormSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!formData.name.trim() || !formData.message.trim()) {
+      alert('Please enter your name and message before dispatching.');
+      return;
     }
+
+    const text = `*New Portfolio Inquiry for Tehleel Basit*
+━━━━━━━━━━━━━━━━━━━━━
+*From:* ${formData.name.trim()}
+*Contact:* ${formData.contact.trim() || 'Not provided'}
+*Subject:* ${formData.subject.trim() || 'General Inquiry'}
+
+*Message:*
+${formData.message.trim()}
+━━━━━━━━━━━━━━━━━━━━━
+_Sent via Tehleel Basit Engineering Portfolio_`;
+
+    const whatsappUrl = `https://wa.me/${personalInfo.whatsapp}?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    setFormSubmitted(true);
   };
 
   return (
@@ -210,12 +182,14 @@ export default function SkillsView() {
         <div className="lg:col-span-5 space-y-8">
           <div className="p-6 border border-[#1C1B19]/10 bg-white rounded-xl shadow-sm space-y-6">
             <div>
-              <h2 className="text-md font-bold uppercase tracking-tight font-sans text-[#1C1B19] flex items-center">
-                <MessageSquare className="h-4 w-4 text-[#1C1B19] mr-2" />
-                Direct Message Dispatch
-              </h2>
-              <p className="text-[11px] font-mono text-[#1C1B19]/60 mt-1">
-                Dispatches to: <span className="font-bold text-[#1C1B19]">{personalInfo.email}</span>
+              <div className="flex items-center justify-between">
+                <h2 className="text-md font-bold uppercase tracking-tight font-sans text-[#1C1B19] flex items-center">
+                  <MessageSquare className="h-4 w-4 text-[#1C1B19] mr-2" />
+                  Direct Message
+                </h2>
+              </div>
+              <p className="text-[11px] font-mono text-[#1C1B19]/60 mt-1.5">
+                Fills and dispatches directly to his personal WhatsApp number.
               </p>
             </div>
 
@@ -223,26 +197,9 @@ export default function SkillsView() {
               {!formSubmitted ? (
                 <motion.form 
                   key="contact-form"
-                  action="https://formspree.io/f/maqrvepq"
-                  method="POST"
                   onSubmit={handleFormSubmit} 
                   className="space-y-4 text-xs font-mono"
                 >
-                  <input type="text" name="_gotcha" style={{ display: 'none' }} />
-
-                  {submitError && (
-                    <div className="p-3 border border-red-500/20 bg-red-50 text-red-700 text-xs font-sans rounded-lg space-y-2">
-                      <p>{submitError}</p>
-                      <button
-                        type="button"
-                        onClick={handleDirectMailto}
-                        className="text-[11px] font-mono font-bold uppercase underline text-red-900 hover:text-black cursor-pointer block"
-                      >
-                        Click here to send via your email client (Gmail / Outlook) →
-                      </button>
-                    </div>
-                  )}
-
                   <div className="space-y-1">
                     <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Full Name *</label>
                     <input
@@ -257,14 +214,13 @@ export default function SkillsView() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Email coordinates *</label>
+                    <label className="block text-[10px] font-mono font-bold text-[#1C1B19]/70 uppercase">Your Phone / Email</label>
                     <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="your.email@organization.com"
+                      type="text"
+                      name="contact"
+                      value={formData.contact}
+                      onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                      placeholder="Your phone number or email"
                       className="w-full px-3 py-2.5 border border-[#1C1B19]/15 rounded-lg bg-white text-[#1C1B19] font-sans font-light focus:outline-none focus:border-[#1C1B19]/50 focus:bg-[#F4F0E8] transition-colors"
                     />
                   </div>
@@ -276,7 +232,7 @@ export default function SkillsView() {
                       name="subject"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      placeholder="e.g. Research Collaboration Inquiry"
+                      placeholder="e.g. Telecom Project / Research Collaboration"
                       className="w-full px-3 py-2.5 border border-[#1C1B19]/15 rounded-lg bg-white text-[#1C1B19] font-sans font-light focus:outline-none focus:border-[#1C1B19]/50 focus:bg-[#F4F0E8] transition-colors"
                     />
                   </div>
@@ -289,36 +245,18 @@ export default function SkillsView() {
                       rows={4}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder="Write your brief here..."
+                      placeholder="Write your message here..."
                       className="w-full px-3 py-2.5 border border-[#1C1B19]/15 rounded-lg bg-white text-[#1C1B19] font-sans font-light focus:outline-none focus:border-[#1C1B19]/50 focus:bg-[#F4F0E8] resize-none transition-colors"
                     />
                   </div>
 
-                  <div className="space-y-2 pt-1">
+                  <div className="pt-1">
                     <button
                       type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-[#1C1B19] hover:bg-[#1C1B19]/90 disabled:opacity-60 text-white rounded-lg font-sans font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
+                      className="w-full py-3 bg-[#1C1B19] hover:bg-[#1C1B19]/90 text-white rounded-lg font-sans font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center space-x-2 shadow-sm"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          <span>Dispatching...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-3.5 w-3.5" />
-                          <span>Send Message</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleDirectMailto}
-                      className="w-full py-2.5 border border-[#1C1B19]/20 hover:bg-[#F4F0E8] text-[#1C1B19] rounded-lg font-sans font-bold text-[11px] uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center space-x-2"
-                    >
-                      <span>Open in Email App (Gmail / Outlook)</span>
+                      <Send className="h-3.5 w-3.5" />
+                      <span>Send Message</span>
                     </button>
                   </div>
                 </motion.form>
@@ -330,28 +268,28 @@ export default function SkillsView() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="bg-[#F4F0E8] border border-[#1C1B19]/10 p-6 text-center space-y-3 rounded-xl"
                 >
-                  <div className="h-10 w-10 rounded-full border border-[#1C1B19]/10 bg-white text-[#1C1B19] flex items-center justify-center mx-auto font-mono font-bold shadow-sm">
-                    ✓
+                  <div className="h-10 w-10 rounded-full border border-[#1C1B19]/20 bg-white text-[#1C1B19] flex items-center justify-center mx-auto font-mono font-bold shadow-sm">
+                    <Check className="h-5 w-5 text-[#1C1B19]" />
                   </div>
-                  <h3 className="text-xs font-mono font-bold uppercase text-[#1C1B19]">Message Dispatched!</h3>
+                  <h3 className="text-xs font-mono font-bold uppercase text-[#1C1B19]">Message Dispatched</h3>
                   <p className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/75 leading-relaxed">
-                    Thank you, <strong>{formData.name || 'Visitor'}</strong>. Your message has been routed to <strong>{personalInfo.email}</strong>.
+                    Your inquiry was transferred to WhatsApp to message <strong>{personalInfo.name}</strong> directly.
                   </p>
                   <div className="pt-2 flex flex-col items-center space-y-2">
                     <button
-                      onClick={handleDirectMailto}
-                      className="text-[11px] font-mono font-bold uppercase underline text-[#1C1B19] hover:text-[#1C1B19]/70 cursor-pointer"
+                      onClick={() => handleFormSubmit()}
+                      className="text-[11px] font-mono font-bold uppercase underline text-[#1C1B19] hover:text-black cursor-pointer"
                     >
-                      Also Open in your Email App →
+                      Reopen WhatsApp Chat →
                     </button>
                     <button
                       onClick={() => {
                         setFormSubmitted(false);
-                        setFormData({ name: '', email: '', subject: '', message: '' });
+                        setFormData({ name: '', contact: '', subject: '', message: '' });
                       }}
-                      className="text-[10px] font-mono font-bold uppercase text-[#1C1B19]/50 hover:text-[#1C1B19] cursor-pointer"
+                      className="text-[10px] font-mono font-bold uppercase text-[#1C1B19]/50 hover:text-[#1C1B19] cursor-pointer pt-2"
                     >
-                      Send Another Message
+                      Write Another Message
                     </button>
                   </div>
                 </motion.div>
@@ -378,7 +316,7 @@ export default function SkillsView() {
               </div>
               <div className="flex items-center space-x-2.5">
                 <span className="w-12 uppercase text-[#1C1B19]/50">LNK:</span>
-                <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="underline text-amber-800 hover:text-amber-950 break-all">LinkedIn Profile</a>
+                <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="underline text-[#1C1B19] hover:text-[#1C1B19]/70 break-all">LinkedIn Profile</a>
               </div>
               <div className="flex items-center space-x-2.5">
                 <span className="w-12 uppercase text-[#1C1B19]/50">LOC:</span>

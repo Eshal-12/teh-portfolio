@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, ChevronUp } from 'lucide-react';
+import { Mail, Phone, MapPin, ChevronUp, MessageCircle } from 'lucide-react';
 import { PageType } from './types';
 import { personalInfo } from './data';
 import Navbar from './components/Navbar';

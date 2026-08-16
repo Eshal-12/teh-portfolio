@@ -137,7 +137,8 @@ export default function ResearchView() {
                   </h3>
 
                   <div className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/80">
-                    Published in: <strong className="text-[#1C1B19] font-semibold">{pub.conference}</strong>
+                    {pub.type.toLowerCase().includes('presentation') || pub.type.toLowerCase().includes('conference') ? 'Presented at: ' : 'Published in: '}
+                    <strong className="text-[#1C1B19] font-semibold">{pub.conference}</strong>
                   </div>
 
                   <div className="flex items-center text-[10px] text-[#1C1B19]/60 font-mono font-bold">
@@ -151,7 +152,13 @@ export default function ResearchView() {
                   <span className="text-[9px] font-mono font-bold text-[#1C1B19]/50 uppercase">{pub.type}</span>
                   <button
                     id={`copy-citation-${pub.id}`}
-                    onClick={() => handleCopyCitation(pub.id, `${pub.title}. Published in: ${pub.conference}, ${pub.location}, ${pub.year}.`)}
+                    onClick={() => {
+                      const isPresentation = pub.type.toLowerCase().includes('presentation') || pub.type.toLowerCase().includes('conference');
+                      const citationText = isPresentation
+                        ? `${pub.title}. Presented at: ${pub.conference}, ${pub.location}, ${pub.year}.`
+                        : `${pub.title}. Published in: ${pub.conference}, ${pub.location}, ${pub.year}.`;
+                      handleCopyCitation(pub.id, citationText);
+                    }}
                     className="px-3 py-1.5 border border-[#1C1B19]/20 hover:bg-[#EAE6DF] rounded transition-colors text-[10px] font-mono font-bold flex items-center space-x-1.5 cursor-pointer bg-white"
                     title="Copy standard citation"
                   >

@@ -20,6 +20,8 @@ export const personalInfo = {
   title: 'Telecommunication Engineer · Lecturer · Data & Network Analyst',
   subTitle: 'MS in Telecommunication Engineering, specializing in AI-driven anomaly detection.',
   phone: '+92 346 3279987',
+  whatsapp: '923463279987',
+  whatsappFormatted: '+92 346 3279987',
   email: 'tehleelbasit78@gmail.com',
   alternateEmail: 'tehleelbasit87@gmail.com',
   location: 'Mardan, Khyber Pakhtunkhwa (KPK), Pakistan',
@@ -231,6 +233,22 @@ export const publicationsList: PublicationItem[] = [
     type: 'RESEARCH PUBLICATION',
     conference: 'Research Consortium Archive, Vol. 4, No. 2 (2026)',
     location: 'Online / International',
+    year: '2026'
+  },
+  {
+    id: 'pub-3',
+    title: 'A Framework with Hybrid Feature Selection for AI-Driven Anomaly Detection in Telecommunication Network Traffic',
+    type: 'CONFERENCE PRESENTATION',
+    conference: '7th International Conference on Scientific and Innovative Studies (ICSIS 2026)',
+    location: 'Konya, Turkey',
+    year: '2026'
+  },
+  {
+    id: 'pub-4',
+    title: 'Federated Learning Based Predictive Traffic Management with Privacy-Preserving Access Control for Autonomous Vehicles',
+    type: 'CONFERENCE PRESENTATION',
+    conference: '7th International Conference on Scientific and Innovative Studies (ICSIS 2026)',
+    location: 'Konya, Turkey',
     year: '2026'
   }
 ];

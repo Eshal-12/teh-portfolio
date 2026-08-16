@@ -363,7 +363,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
           </blockquote>
           <div className="pt-2">
             <span className="block text-sm font-sans font-bold uppercase tracking-wider">Tehleel Basit</span>
-            <span className="block text-xs text-[#1C1B19]/60 font-mono font-medium">UET Mardan · MS Telecommunication Candidate</span>
+            <span className="block text-xs text-[#1C1B19]/60 font-mono font-medium">UET Mardan · MS Telecommunication Engineering</span>
           </div>
         </div>
       </motion.div>
