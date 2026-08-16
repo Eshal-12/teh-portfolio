@@ -18,14 +18,14 @@ import chequeImg from './assets/images/winner_cheque_1784096261028.jpg';
 export const personalInfo = {
   name: 'Tehleel Basit',
   title: 'Telecommunication Engineer · Lecturer · Data & Network Analyst',
-  subTitle: 'MS Candidate in Telecommunication Engineering, specializing in AI-driven anomaly detection.',
+  subTitle: 'MS in Telecommunication Engineering, specializing in AI-driven anomaly detection.',
   phone: '+92 346 3279987',
   email: 'tehleelbasit78@gmail.com',
   alternateEmail: 'tehleelbasit87@gmail.com',
   location: 'Mardan, Khyber Pakhtunkhwa (KPK), Pakistan',
   github: '#', // placeholder if needed
   linkedin: 'https://www.linkedin.com/in/tehleel-basit-50bb66216?utm_source=share_via&utm_content=profile&utm_medium=member_android',
-  profileText: 'Telecommunication Engineer with a strong academic record and hands-on experience in networking, telecom operations, simulation tools, and technical reporting. Skilled in data analysis, problem-solving, teaching, and academic/examination administration, with an ongoing research focus on AI-driven anomaly detection in telecom traffic. Seeking to apply strong analytical, technical, and coordination skills in a data-driven or telecom engineering role.',
+  profileText: 'Telecommunication Engineer with a strong academic record and hands-on experience in networking, telecom operations, simulation tools, and technical reporting. Skilled in data analysis, problem-solving, teaching, and academic/examination administration, with a research focus on AI-driven anomaly detection in telecom traffic. Seeking to apply strong analytical, technical, and coordination skills in a data-driven or telecom engineering role.',
   avatar: 'https://lh3.googleusercontent.com/d/1ZtZK-04oNOOu5wni3YfEX09VVjGSRbWK'
 };
 
@@ -34,7 +34,7 @@ export const educationList: EducationItem[] = [
     id: 'edu-ms',
     degree: 'MS, Telecommunication Engineering',
     institution: 'University of Engineering & Technology (UET), Mardan (HEC, PEC Approved)',
-    years: '2022 – Present',
+    years: '2022 – 2026',
     result: 'CGPA: 4.00 / 4.00'
   },
   {
@@ -48,7 +48,7 @@ export const educationList: EducationItem[] = [
     id: 'edu-bed',
     degree: 'B.Ed (1.5 Years), Education',
     institution: 'Abdul Wali Khan University, Mardan (AWKUM)',
-    years: 'Present',
+    years: '2025 – 2026',
     result: 'CGPA: 3.62 / 4.00'
   },
   {
@@ -150,15 +150,15 @@ export const projectsList: ProjectItem[] = [
   {
     id: 'proj-ms',
     title: 'AI-Driven Anomaly Detection for Cybersecurity in Telecommunication Traffic',
-    sponsor: 'UET Mardan · Ongoing MS Thesis',
-    description: 'Developing an advanced framework applying Machine Learning/Deep Learning to identify and mitigate cyber threats, intrusions, and traffic anomalies in telecommunication networks.',
+    sponsor: 'UET Mardan · MS Thesis',
+    description: 'Developed an advanced framework applying Machine Learning/Deep Learning to identify and mitigate cyber threats, intrusions, and traffic anomalies in telecommunication networks.',
     image: 'https://lh3.googleusercontent.com/d/1mNMndl8vgHF3FAAhWpak68UtYX3ep4hG', // real portrait as representing researcher
-    year: '2025 – Present',
+    year: '2022 – 2026',
     type: 'ms',
     highlights: [
       'Constructed a model using hybrid feature extraction to identify malicious traffic anomalies with state-of-the-art precision.',
       'Leveraged advanced data analysis techniques on large network datasets (like UNSW-NB15/CICIDS) to model telecom carrier threat profiles.',
-      'Focusing on lightweight deployment models suited for live edge gateways in core networks.'
+      'Designed lightweight deployment models suited for live edge gateways in core networks.'
     ]
   },
   {
