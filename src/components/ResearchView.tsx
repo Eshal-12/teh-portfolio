@@ -111,7 +111,7 @@ export default function ResearchView() {
       <div className="space-y-8 pt-6">
         <motion.div variants={itemVariants} className="flex items-center space-x-3 pb-2 border-b border-[#1C1B19]/10">
           <BookOpen className="h-5 w-5 text-[#1C1B19]" />
-          <h2 className="text-lg font-bold tracking-tight font-sans text-[#1C1B19]">Peer-Reviewed Conference Presentations</h2>
+          <h2 className="text-lg font-bold tracking-tight font-sans text-[#1C1B19]">Publications & Research</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -137,7 +137,7 @@ export default function ResearchView() {
                   </h3>
 
                   <div className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/80">
-                    Presented at: <strong className="text-[#1C1B19] font-semibold">{pub.conference}</strong>
+                    Published in: <strong className="text-[#1C1B19] font-semibold">{pub.conference}</strong>
                   </div>
 
                   <div className="flex items-center text-[10px] text-[#1C1B19]/60 font-mono font-bold">
@@ -148,10 +148,10 @@ export default function ResearchView() {
 
                 {/* Citation Copy panel */}
                 <div className="pt-4 border-t border-[#1C1B19]/10 flex items-center justify-between">
-                  <span className="text-[9px] font-mono font-bold text-[#1C1B19]/50 uppercase">Oral Presentation (Turkey)</span>
+                  <span className="text-[9px] font-mono font-bold text-[#1C1B19]/50 uppercase">{pub.type}</span>
                   <button
                     id={`copy-citation-${pub.id}`}
-                    onClick={() => handleCopyCitation(pub.id, `${pub.title}. Presented at ${pub.conference}, ${pub.location}, ${pub.year}.`)}
+                    onClick={() => handleCopyCitation(pub.id, `${pub.title}. Published in: ${pub.conference}, ${pub.location}, ${pub.year}.`)}
                     className="px-3 py-1.5 border border-[#1C1B19]/20 hover:bg-[#EAE6DF] rounded transition-colors text-[10px] font-mono font-bold flex items-center space-x-1.5 cursor-pointer bg-white"
                     title="Copy standard citation"
                   >

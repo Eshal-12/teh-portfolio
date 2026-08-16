@@ -219,18 +219,18 @@ export const galleryList: GalleryItem[] = [
 export const publicationsList: PublicationItem[] = [
   {
     id: 'pub-1',
-    title: 'A Framework with Hybrid Feature Selection for AI-Driven Anomaly Detection in Telecommunication Network Traffic',
-    type: 'Oral Presentation',
-    conference: '7th International Conference on Scientific and Innovative Studies (ICSIS 2026)',
-    location: 'Konya, Turkey',
+    title: 'A Hybrid CNN-LSTM Deep Learning Model for Network Intrusion Detection and Multiclass Cyberattack Classification',
+    type: 'JOURNAL PUBLICATION',
+    conference: 'International Journal of Advanced Research, Volume 3, Issue 2 (May 2026)',
+    location: 'Pakistan',
     year: '2026'
   },
   {
     id: 'pub-2',
-    title: 'Federated Learning Based Predictive Traffic Management with Privacy-Preserving Access Control for Autonomous Vehicles',
-    type: 'Oral Presentation',
-    conference: '7th International Conference on Scientific and Innovative Studies (ICSIS 2026)',
-    location: 'Konya, Turkey',
+    title: 'Mobile Computing for Enhanced Connectivity and Intelligence in the Internet of Things',
+    type: 'RESEARCH PUBLICATION',
+    conference: 'Research Consortium Archive, Vol. 4, No. 2 (2026)',
+    location: 'Online / International',
     year: '2026'
   }
 ];
