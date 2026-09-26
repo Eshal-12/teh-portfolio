@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowRight, Download, Cpu, GraduationCap, 
-  Briefcase, Award, X, MapPin, Calendar, Maximize2, Mic, MessageSquare
+  Briefcase, Award, X, MapPin, Calendar, Maximize2, Mic, MessageSquare,
+  Camera, Check, UploadCloud
 } from 'lucide-react';
 import { personalInfo, galleryList } from '../data';
 import { GalleryItem } from '../types';
@@ -12,8 +13,42 @@ interface HomeViewProps {
 }
 
 export default function HomeView({ setCurrentPage }: HomeViewProps) {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'academic' | 'research' | 'awards' | 'portrait'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'academic' | 'research' | 'awards'>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
+  
+  // Main hero profile image custom state (stored in localStorage & backend)
+  const [heroAvatar, setHeroAvatar] = useState<string>(() => {
+    return localStorage.getItem('tehleel_hero_avatar') || personalInfo.avatar;
+  });
+  const [heroUploadSuccess, setHeroUploadSuccess] = useState(false);
+  const [isHeroDragging, setIsHeroDragging] = useState(false);
+
+  const handleHeroAvatarUpload = (file: File) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setHeroAvatar(dataUrl);
+      try {
+        localStorage.setItem('tehleel_hero_avatar', dataUrl);
+      } catch (e) {
+        console.warn('Storage limit:', e);
+      }
+      setHeroUploadSuccess(true);
+      setTimeout(() => setHeroUploadSuccess(false), 5000);
+
+      try {
+        await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataUrl, target: 'avatar' })
+        });
+      } catch (err) {
+        console.error('Failed to sync avatar to server:', err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -75,27 +110,68 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
 
         </motion.div>
 
-        {/* Right column - Frame for Profile Image */}
+        {/* Right column - Frame for Profile Image with Integration Option */}
         <motion.div 
           variants={itemVariants} 
           className="lg:col-span-5 flex flex-col items-center"
         >
           <div className="w-full max-w-sm">
-            <div className="border border-[#1C1B19]/15 bg-[#F4F0E8] p-4 text-center rounded-2xl shadow-sm">
-              <div className="border border-[#1C1B19]/10 bg-white p-2 rounded-xl overflow-hidden">
+            <div className={`border transition-all duration-300 ${isHeroDragging ? 'border-[#1C1B19] bg-[#EAE6DF] scale-[1.02]' : 'border-[#1C1B19]/15 bg-[#F4F0E8]'} p-4 text-center rounded-2xl shadow-sm`}>
+              <div 
+                className="border border-[#1C1B19]/10 bg-white p-2 rounded-xl overflow-hidden cursor-pointer group relative shadow-inner"
+                onClick={() => {
+                  setSelectedPhoto({
+                    id: 'hero-portrait',
+                    title: 'Official Academic & Engineering Portrait',
+                    category: 'academic',
+                    description: 'Official portrait of Tehleel Basit — Telecommunication Engineer, Ph.D. Scholar, and Academic Incharge.',
+                    image: heroAvatar,
+                    date: '2026',
+                    location: 'Mardan, KPK'
+                  });
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsHeroDragging(true);
+                }}
+                onDragLeave={() => setIsHeroDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsHeroDragging(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) handleHeroAvatarUpload(file);
+                }}
+                title="Click to view full portrait, or drag & drop photo here"
+              >
                 <img
-                  src={personalInfo.avatar}
+                  src={heroAvatar}
                   alt="Tehleel Basit - Telecommunication Engineer"
-                  className="w-full h-auto aspect-square object-cover object-top filter contrast-[1.01]"
+                  className="w-full h-auto aspect-square object-cover object-top filter contrast-[1.01] transition-transform duration-300 group-hover:scale-[1.02]"
                   loading="eager"
                   decoding="sync"
                   fetchPriority="high"
                   referrerPolicy="no-referrer"
+                  onError={() => {
+                    if (heroAvatar !== personalInfo.avatar) {
+                      setHeroAvatar(personalInfo.avatar);
+                    }
+                  }}
                 />
-              </div>
-              <div className="mt-4 border-t border-[#1C1B19]/10 pt-3 text-center flex items-center justify-center space-x-2 font-mono text-[10px] text-[#1C1B19]/60 font-bold">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#1C1B19]" />
-                <span className="tracking-widest uppercase">Mardan · SEC: NETWORK ENG.</span>
+
+                {/* Drag over overlay */}
+                {isHeroDragging && (
+                  <div className="absolute inset-0 bg-[#1C1B19]/80 flex flex-col items-center justify-center text-[#FDFBF7] p-4 backdrop-blur-sm z-30">
+                    <UploadCloud className="h-10 w-10 animate-bounce mb-2" />
+                    <span className="font-mono text-xs uppercase tracking-wider font-bold">Drop Photo to Integrate</span>
+                  </div>
+                )}
+
+                <div className="absolute inset-0 bg-[#1C1B19]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white backdrop-blur-[1px] rounded-lg">
+                  <div className="bg-[#1C1B19]/80 px-3 py-1.5 rounded-full flex items-center space-x-1.5 text-xs font-mono">
+                    <Maximize2 className="h-3.5 w-3.5" />
+                    <span>View Full Photo</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -179,7 +255,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
 
           {/* Filters */}
           <div className="flex flex-wrap gap-2 text-[10px] font-mono font-bold uppercase">
-            {(['all', 'academic', 'research', 'awards', 'portrait'] as const).map((cat) => (
+            {(['all', 'academic', 'research', 'awards'] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -210,12 +286,15 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
-                onClick={() => setSelectedPhoto(item)}
-                className="group border border-[#1C1B19]/10 bg-white p-3 rounded-xl shadow-sm hover:border-[#1C1B19]/30 transition-all cursor-pointer flex flex-col justify-between"
+                className="group border border-[#1C1B19]/10 bg-white p-3 rounded-xl shadow-sm hover:border-[#1C1B19]/30 transition-all flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   {/* Image container */}
-                  <div className="relative aspect-[4/3] bg-[#F4F0E8] overflow-hidden rounded-lg border border-[#1C1B19]/10">
+                  <div 
+                    className="relative aspect-[4/3] bg-[#F4F0E8] overflow-hidden rounded-lg border border-[#1C1B19]/10 cursor-pointer"
+                    onClick={() => setSelectedPhoto(item)}
+                    title="Click to view full picture"
+                  >
                     <img
                       src={item.image}
                       alt={item.title}
@@ -223,41 +302,41 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
                       referrerPolicy="no-referrer"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3 text-white">
-                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider">
-                        View Full Picture
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3 text-white">
+                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider">
+                          View Full Picture
+                        </span>
+                        <Maximize2 className="h-4 w-4" />
+                      </div>
+                      {/* Badge */}
+                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-[#1C1B19]/90 border border-white/10 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">
+                        {item.category}
                       </span>
-                      <Maximize2 className="h-4 w-4" />
                     </div>
-                    {/* Badge */}
-                    <span className="absolute top-3 left-3 px-2 py-0.5 bg-[#1C1B19]/90 border border-white/10 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">
-                      {item.category}
+
+                    {/* Photo details */}
+                    <div className="space-y-1 px-1 cursor-pointer" onClick={() => setSelectedPhoto(item)}>
+                      <h3 className="text-xs font-bold uppercase text-[#1C1B19] tracking-tight group-hover:text-[#1C1B19]/80 transition-colors">
+                        {item.title}
+                      </h3>
+                      <p className="text-[11px] font-sans font-light text-[#1C1B19]/70 leading-relaxed line-clamp-2">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Meta details */}
+                  <div className="flex items-center justify-between text-[9px] font-mono text-[#1C1B19]/65 pt-3 border-t border-[#1C1B19]/5 px-1 mt-3">
+                    <span className="flex items-center">
+                      <Calendar className="h-3 w-3 mr-1 text-[#1C1B19]/50" />
+                      {item.date}
+                    </span>
+                    <span className="flex items-center truncate max-w-[120px]" title={item.location}>
+                      <MapPin className="h-3 w-3 mr-1 text-[#1C1B19]/50" />
+                      {item.location}
                     </span>
                   </div>
-
-                  {/* Photo details */}
-                  <div className="space-y-1 px-1">
-                    <h3 className="text-xs font-bold uppercase text-[#1C1B19] tracking-tight group-hover:text-[#1C1B19]/80 transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-[11px] font-sans font-light text-[#1C1B19]/70 leading-relaxed line-clamp-2">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Meta details */}
-                <div className="flex items-center justify-between text-[9px] font-mono text-[#1C1B19]/65 pt-3 border-t border-[#1C1B19]/5 px-1 mt-3">
-                  <span className="flex items-center">
-                    <Calendar className="h-3 w-3 mr-1 text-[#1C1B19]/50" />
-                    {item.date}
-                  </span>
-                  <span className="flex items-center truncate max-w-[120px]" title={item.location}>
-                    <MapPin className="h-3 w-3 mr-1 text-[#1C1B19]/50" />
-                    {item.location}
-                  </span>
-                </div>
-              </motion.div>
+                </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
@@ -294,11 +373,11 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
               </button>
 
               {/* Left Side: Photo Frame */}
-              <div className="md:w-3/5 bg-[#F4F0E8] p-4 flex items-center justify-center relative min-h-[300px] md:min-h-0 border-b md:border-b-0 md:border-r border-[#1C1B19]/10 overflow-hidden">
+              <div className="md:w-3/5 bg-[#F4F0E8] p-4 flex flex-col items-center justify-center relative min-h-[300px] md:min-h-0 border-b md:border-b-0 md:border-r border-[#1C1B19]/10 overflow-hidden">
                 <img
                   src={selectedPhoto.image}
                   alt={selectedPhoto.title}
-                  className="max-w-full max-h-[50vh] md:max-h-[70vh] object-contain rounded-lg border border-[#1C1B19]/10 shadow-md"
+                  className="max-w-full max-h-[50vh] md:max-h-[65vh] object-contain rounded-lg border border-[#1C1B19]/10 shadow-md"
                   referrerPolicy="no-referrer"
                 />
               </div>

@@ -224,15 +224,6 @@ export const galleryList: GalleryItem[] = [
     image: thermalImg,
     date: '2022',
     location: 'HIT Sponsored Laboratory'
-  },
-  {
-    id: 'gal-portrait',
-    title: 'Official Academic & Engineering Portrait',
-    category: 'portrait',
-    description: 'Official portrait of Tehleel Basit — Telecommunication Engineer, Ph.D. Scholar, and Examination Incharge.',
-    image: avatarImg,
-    date: '2026',
-    location: 'Mardan, KPK'
   }
 ];
 
