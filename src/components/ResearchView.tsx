@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
-import { BookOpen, Cpu, Award, Globe, Check, Copy } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { BookOpen, Cpu, Award, Globe, Check, Copy, Maximize2, X } from 'lucide-react';
 import { projectsList, publicationsList } from '../data';
 
 export default function ResearchView() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<{ src: string; title: string; subtitle: string } | null>(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -61,7 +62,7 @@ export default function ResearchView() {
                 variants={itemVariants}
                 className="group flex flex-col bg-white border border-[#1C1B19]/10 p-6 space-y-4 rounded-xl shadow-sm"
               >
-                {/* Project Header without Photos */}
+                {/* Project Header */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <span className="inline-block px-2.5 py-0.5 bg-[#1C1B19] text-white text-[9px] font-mono font-bold tracking-wider uppercase rounded">
@@ -75,6 +76,34 @@ export default function ResearchView() {
                     {project.title}
                   </h3>
                 </div>
+
+                {/* Project Photograph if available */}
+                {project.image && (
+                  <div 
+                    onClick={() => setPreviewImage({
+                      src: project.image,
+                      title: project.title,
+                      subtitle: `${project.sponsor} · ${project.year}`
+                    })}
+                    className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-[#1C1B19]/10 bg-[#F4F0E8] cursor-pointer group/img shadow-sm"
+                  >
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover object-center group-hover/img:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/70 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end justify-between p-3 text-white">
+                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider">
+                        Click to view full photo
+                      </span>
+                      <Maximize2 className="h-4 w-4" />
+                    </div>
+                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 bg-[#1C1B19]/90 border border-white/20 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">
+                      Project Demonstration
+                    </div>
+                  </div>
+                )}
 
                 {/* Project Body */}
                 <div className="flex-grow flex flex-col justify-between space-y-4">
@@ -180,6 +209,63 @@ export default function ResearchView() {
           })}
         </div>
       </div>
+
+      {/* Lightbox / Modal for Project Photo */}
+      <AnimatePresence>
+        {previewImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPreviewImage(null)}
+              className="absolute inset-0 bg-[#1C1B19]/85 backdrop-blur-sm cursor-pointer"
+            />
+
+            {/* Modal Body */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-[#1C1B19]/20 z-10 flex flex-col max-h-[90vh]"
+            >
+              {/* Top bar */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C1B19]/10 bg-[#FCFBF7]">
+                <div>
+                  <h3 className="text-sm font-bold uppercase text-[#1C1B19] tracking-tight">
+                    {previewImage.title}
+                  </h3>
+                  <div className="text-[10px] font-mono text-[#1C1B19]/60 font-semibold mt-0.5">
+                    {previewImage.subtitle}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPreviewImage(null)}
+                  className="p-2 text-[#1C1B19]/60 hover:text-[#1C1B19] hover:bg-[#F4F0E8] rounded-full transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Photo Display */}
+              <div className="relative bg-[#1C1B19] flex items-center justify-center p-2 sm:p-4 overflow-hidden flex-grow max-h-[70vh]">
+                <img
+                  src={previewImage.src}
+                  alt={previewImage.title}
+                  className="max-h-full max-w-full object-contain rounded"
+                />
+              </div>
+
+              {/* Bottom Caption */}
+              <div className="px-6 py-3 bg-[#FCFBF7] border-t border-[#1C1B19]/10 text-xs font-mono text-[#1C1B19]/70 flex items-center justify-between">
+                <span>Heavy Industries Taxila (HIT) Sponsored Defense FYP</span>
+                <span className="text-[10px] uppercase font-bold text-[#1C1B19]">UET Mardan · 2022</span>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

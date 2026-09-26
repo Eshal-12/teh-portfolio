@@ -6,6 +6,8 @@ import { skillsList, certificationsList, languages, interests, personalInfo } fr
 export default function SkillsView() {
   const [activeCategory, setActiveCategory] = useState<'all' | 'telecom' | 'analysis' | 'software' | 'soft'>('all');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [copiedMessage, setCopiedMessage] = useState(false);
   const [formData, setFormData] = useState({ name: '', contact: '', subject: '', message: '' });
 
   const categories: { id: typeof activeCategory; label: string }[] = [
@@ -36,23 +38,10 @@ export default function SkillsView() {
   const handleFormSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!formData.name.trim() || !formData.message.trim()) {
-      alert('Please enter your name and message before dispatching.');
+      setFormError('Please enter your name and message before dispatching.');
       return;
     }
-
-    const text = `*New Portfolio Inquiry for Tehleel Basit*
-━━━━━━━━━━━━━━━━━━━━━
-*From:* ${formData.name.trim()}
-*Contact:* ${formData.contact.trim() || 'Not provided'}
-*Subject:* ${formData.subject.trim() || 'General Inquiry'}
-
-*Message:*
-${formData.message.trim()}
-━━━━━━━━━━━━━━━━━━━━━
-_Sent via Tehleel Basit Engineering Portfolio_`;
-
-    const whatsappUrl = `https://wa.me/${personalInfo.whatsapp}?text=${encodeURIComponent(text)}`;
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    setFormError(null);
     setFormSubmitted(true);
   };
 
@@ -250,6 +239,12 @@ _Sent via Tehleel Basit Engineering Portfolio_`;
                     />
                   </div>
 
+                  {formError && (
+                    <div className="p-2.5 bg-red-50 border border-red-200 text-red-800 text-xs font-mono rounded-lg">
+                      {formError}
+                    </div>
+                  )}
+
                   <div className="pt-1">
                     <button
                       type="submit"
@@ -266,23 +261,40 @@ _Sent via Tehleel Basit Engineering Portfolio_`;
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-[#F4F0E8] border border-[#1C1B19]/10 p-6 text-center space-y-3 rounded-xl"
+                  className="bg-[#F4F0E8] border border-[#1C1B19]/10 p-6 text-center space-y-4 rounded-xl"
                 >
                   <div className="h-10 w-10 rounded-full border border-[#1C1B19]/20 bg-white text-[#1C1B19] flex items-center justify-center mx-auto font-mono font-bold shadow-sm">
                     <Check className="h-5 w-5 text-[#1C1B19]" />
                   </div>
-                  <h3 className="text-xs font-mono font-bold uppercase text-[#1C1B19]">Message Dispatched</h3>
-                  <p className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/75 leading-relaxed">
-                    Your inquiry was transferred to WhatsApp to message <strong>{personalInfo.name}</strong> directly.
-                  </p>
-                  <div className="pt-2 flex flex-col items-center space-y-2">
-                    <button
-                      onClick={() => handleFormSubmit()}
-                      className="text-[11px] font-mono font-bold uppercase underline text-[#1C1B19] hover:text-black cursor-pointer"
+                  <div>
+                    <h3 className="text-xs font-mono font-bold uppercase text-[#1C1B19]">Message Prepared</h3>
+                    <p className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/75 leading-relaxed mt-1">
+                      Your inquiry has been compiled for <strong>{personalInfo.name}</strong>.
+                    </p>
+                  </div>
+
+                  <div className="pt-2 flex flex-col space-y-2">
+                    <a
+                      href={`mailto:${personalInfo.email}?subject=${encodeURIComponent(formData.subject || 'Portfolio Inquiry')}&body=${encodeURIComponent(`From: ${formData.name}\nContact: ${formData.contact || 'Not provided'}\n\nMessage:\n${formData.message}`)}`}
+                      className="w-full py-2.5 bg-[#1C1B19] hover:bg-[#1C1B19]/90 text-white rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all text-center"
                     >
-                      Reopen WhatsApp Chat →
-                    </button>
+                      Open Email Client →
+                    </a>
+
                     <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`From: ${formData.name}\nContact: ${formData.contact}\nSubject: ${formData.subject}\n\n${formData.message}`);
+                        setCopiedMessage(true);
+                        setTimeout(() => setCopiedMessage(false), 2500);
+                      }}
+                      className="w-full py-2 border border-[#1C1B19]/20 bg-white hover:bg-[#EAE6DF] text-[#1C1B19] rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer"
+                    >
+                      {copiedMessage ? '✓ Message Copied!' : 'Copy Message Text'}
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => {
                         setFormSubmitted(false);
                         setFormData({ name: '', contact: '', subject: '', message: '' });

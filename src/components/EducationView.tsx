@@ -83,10 +83,18 @@ export default function EducationView() {
                     isEngineering ? 'bg-[#1C1B19]' : 'bg-white'
                   }`} />
 
-                  <div className="flex flex-wrap items-center justify-between gap-1">
-                    <span className="inline-block px-2.5 py-0.5 border border-[#1C1B19]/10 text-[9px] font-mono font-bold text-[#1C1B19]/70 bg-[#FCFBF7] rounded">
-                      {edu.years}
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-block px-2.5 py-0.5 border border-[#1C1B19]/10 text-[9px] font-mono font-bold text-[#1C1B19]/70 bg-[#FCFBF7] rounded">
+                        {edu.years}
+                      </span>
+                      {edu.years.includes('PRESENT') && (
+                        <span className="inline-flex items-center px-2 py-0.5 text-[8.5px] font-mono font-bold uppercase tracking-wider bg-[#1C1B19] text-[#FCFBF7] rounded">
+                          <span className="h-1.5 w-1.5 rounded-full bg-white mr-1.5 animate-pulse" />
+                          Currently Active
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[9px] font-mono font-bold text-white bg-[#1C1B19] px-2 py-0.5 rounded">
                       {edu.result}
                     </span>
@@ -138,8 +146,9 @@ export default function EducationView() {
                     <img
                       src={ach.image}
                       alt={ach.title}
-                      className="w-full h-full object-cover object-top grayscale contrast-[1.01] hover:grayscale-0 transition-all duration-500 rounded-md"
+                      className="w-full h-full object-cover object-top contrast-[1.02] group-hover:scale-105 transition-all duration-500 rounded-md"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                     {/* Overlay badge */}
                     <div className="absolute top-2.5 left-2.5 bg-white px-2 py-0.5 text-[9px] font-mono text-[#1C1B19] font-bold border border-[#1C1B19]/10 flex items-center space-x-1 uppercase tracking-wider rounded">
@@ -176,16 +185,22 @@ export default function EducationView() {
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-[#1C1B19]">
               <BookOpen className="h-4 w-4" />
-              <span className="font-mono text-xs font-bold tracking-wider uppercase text-[#1C1B19]/60">Active Academic Candidacy</span>
+              <span className="font-mono text-xs font-bold tracking-wider uppercase text-[#1C1B19]/60">Active Doctoral Candidacy & Research</span>
             </div>
-            <h3 className="text-lg font-bold uppercase tracking-tight text-[#1C1B19]">MS Telecommunication Thesis Defense Preparation</h3>
+            <h3 className="text-lg font-bold uppercase tracking-tight text-[#1C1B19]">Ph.D. in Telecommunication Engineering (In Progress)</h3>
             <p className="text-xs font-sans font-light tracking-wide text-[#1C1B19]/70 max-w-3xl leading-relaxed">
-              Actively working alongside the Telecommunication Engineering research division at UET Mardan to defend final MS Thesis findings. Representing hybrid optimization models that solve network cybersecurity deficits on edge nodes.
+              Currently pursuing doctoral research in Telecommunication Engineering at UET Mardan, expanding advanced frameworks in AI-driven network anomaly detection, intrusion prevention architectures, and privacy-preserving intelligent vehicular networks.
             </p>
           </div>
-          <div className="flex-shrink-0 bg-white border border-[#1C1B19]/10 px-5 py-4 text-center min-w-[120px] rounded-xl shadow-sm">
-            <span className="block text-3xl font-bold text-[#1C1B19] font-mono leading-none">4.00</span>
-            <span className="block text-[8px] font-mono text-[#1C1B19]/40 font-bold uppercase mt-1">MS CGPA</span>
+          <div className="flex-shrink-0 flex items-center space-x-3">
+            <div className="bg-white border border-[#1C1B19]/10 px-5 py-4 text-center min-w-[120px] rounded-xl shadow-sm">
+              <span className="block text-2xl font-bold text-[#1C1B19] font-mono leading-none">Ph.D.</span>
+              <span className="block text-[8px] font-mono text-[#1C1B19]/60 font-bold uppercase mt-1">In Progress</span>
+            </div>
+            <div className="bg-white border border-[#1C1B19]/10 px-5 py-4 text-center min-w-[120px] rounded-xl shadow-sm">
+              <span className="block text-3xl font-bold text-[#1C1B19] font-mono leading-none">4.00</span>
+              <span className="block text-[8px] font-mono text-[#1C1B19]/60 font-bold uppercase mt-1">MS CGPA</span>
+            </div>
           </div>
         </div>
       </motion.div>

@@ -15,10 +15,12 @@ import laptopImg from './assets/images/laptop_award_1784096225279.jpg';
 import thermalImg from './assets/images/thermal_project_1784096244618.jpg';
 import chequeImg from './assets/images/winner_cheque_1784096261028.jpg';
 
+export { avatarImg, convocationImg, laptopImg, thermalImg, chequeImg };
+
 export const personalInfo = {
   name: 'Tehleel Basit',
-  title: 'Telecommunication Engineer · Lecturer · Data & Network Analyst',
-  subTitle: 'MS in Telecommunication Engineering, specializing in AI-driven anomaly detection.',
+  title: 'Telecommunication Engineer · Ph.D. Scholar · Lecturer · Data & Network Analyst',
+  subTitle: 'Ph.D. Scholar & MS in Telecommunication Engineering (CGPA 4.00), specializing in AI-driven anomaly detection.',
   phone: '+92 346 3279987',
   whatsapp: '923463279987',
   whatsappFormatted: '+92 346 3279987',
@@ -27,11 +29,18 @@ export const personalInfo = {
   location: 'Mardan, Khyber Pakhtunkhwa (KPK), Pakistan',
   github: '#', // placeholder if needed
   linkedin: 'https://www.linkedin.com/in/tehleel-basit-50bb66216?utm_source=share_via&utm_content=profile&utm_medium=member_android',
-  profileText: 'Telecommunication Engineer with a strong academic record and hands-on experience in networking, telecom operations, simulation tools, and technical reporting. Skilled in data analysis, problem-solving, teaching, and academic/examination administration, with a research focus on AI-driven anomaly detection in telecom traffic. Seeking to apply strong analytical, technical, and coordination skills in a data-driven or telecom engineering role.',
-  avatar: 'https://lh3.googleusercontent.com/d/1ZtZK-04oNOOu5wni3YfEX09VVjGSRbWK'
+  profileText: 'Telecommunication Engineer and Ph.D. Scholar with a strong academic record and hands-on experience in networking, telecom operations, simulation tools, and technical reporting. Skilled in data analysis, problem-solving, teaching, and academic/examination administration, with a research focus on AI-driven anomaly detection in telecom traffic. Seeking to apply strong analytical, technical, and coordination skills in a data-driven or telecom engineering role.',
+  avatar: avatarImg
 };
 
 export const educationList: EducationItem[] = [
+  {
+    id: 'edu-phd',
+    degree: 'Ph.D. in Telecommunication Engineering',
+    institution: 'University of Engineering & Technology (UET), Mardan (HEC, PEC Approved)',
+    years: '2026 – PRESENT',
+    result: 'CURRENTLY ENROLLED (IN PROGRESS)'
+  },
   {
     id: 'edu-ms',
     degree: 'MS, Telecommunication Engineering',
@@ -126,25 +135,25 @@ export const achievementList: AchievementItem[] = [
     id: 'ach-dean',
     title: "Dean's List Top Graduate",
     description: "Honored on the University Dean's List for exceptional academic performance during the BS Telecommunication Engineering program at UET Mardan.",
-    image: 'https://lh3.googleusercontent.com/d/1P1BL4lS3obrBMhmy3oMwXhPtfycs5mbq'
+    image: convocationImg
   },
   {
     id: 'ach-pmy',
     title: "Prime Minister's Youth Award",
     description: "Awarded a high-performance laptop and certificate under the Prime Minister's Youth Programme in recognition of academic excellence.",
-    image: 'https://lh3.googleusercontent.com/d/1a8hHX7PgiTzBhU5Vgfm_fO6CfwbQ1O2v'
+    image: laptopImg
   },
   {
     id: 'ach-open-winner',
     title: "Best FYP Award & Cheque",
     description: "Awarded the Best BS Final Year Project at UET Mardan's Open House Exhibition (2022) with a PKR 10,000 winner's cash prize for the thermal-imaging system.",
-    image: 'https://lh3.googleusercontent.com/d/1iJuFcYDEpFCVdg-keu2t-z5BkxEYoJp_'
+    image: chequeImg
   },
   {
     id: 'ach-pec',
     title: "PEC Registered Engineer (R.E.)",
     description: "Officially registered and certified as a Registered Engineer (R.E.) by the Pakistan Engineering Council (PEC), authorizing professional engineering practice in Telecommunication Engineering and validating alignment with national engineering standards.",
-    image: 'https://lh3.googleusercontent.com/d/1VuPMwnivTpO2TGRT_oSa8jwkHSYqhv5c'
+    image: convocationImg
   }
 ];
 
@@ -154,7 +163,7 @@ export const projectsList: ProjectItem[] = [
     title: 'AI-Driven Anomaly Detection for Cybersecurity in Telecommunication Traffic',
     sponsor: 'UET Mardan · MS Thesis',
     description: 'Developed an advanced framework applying Machine Learning/Deep Learning to identify and mitigate cyber threats, intrusions, and traffic anomalies in telecommunication networks.',
-    image: 'https://lh3.googleusercontent.com/d/1mNMndl8vgHF3FAAhWpak68UtYX3ep4hG', // real portrait as representing researcher
+    image: '',
     year: '2022 – 2026',
     type: 'ms',
     highlights: [
@@ -168,7 +177,7 @@ export const projectsList: ProjectItem[] = [
     title: 'Automatic Target Detection & Identification from Analogue Thermal Imager Feed',
     sponsor: 'Heavy Industries Taxila (HIT) Sponsored · BS Final Year Project',
     description: 'Designed and built an automated intelligence computer vision system that interprets analogue feeds from combat thermal cameras to detect and categorize military vehicles/personnel.',
-    image: 'https://lh3.googleusercontent.com/d/1O20rzEy1piLJwxyyPC2FvKA5dUIiytu6',
+    image: thermalImg,
     year: '2021 — 2022',
     type: 'bs',
     highlights: [
@@ -181,29 +190,29 @@ export const projectsList: ProjectItem[] = [
 
 export const galleryList: GalleryItem[] = [
   {
-    id: 'gal-pmy',
-    title: 'Prime Minister’s Laptop Award Ceremony',
-    category: 'awards',
-    description: 'Tehleel Basit receiving a high-performance computer from government dignitaries under the Prime Minister’s Youth Programme in recognition of outstanding academic merits.',
-    image: 'https://lh3.googleusercontent.com/d/1a8hHX7PgiTzBhU5Vgfm_fO6CfwbQ1O2v',
-    date: '2023',
-    location: 'Mardan, KPK'
-  },
-  {
     id: 'gal-convocation',
     title: 'UET Mardan Academic Convocation',
     category: 'academic',
     description: 'Tehleel Basit at the BS Telecommunication Engineering convocation and leadership investiture ceremony, celebrating top academic achievements with peer student commanders.',
-    image: 'https://lh3.googleusercontent.com/d/1mNMndl8vgHF3FAAhWpak68UtYX3ep4hG',
+    image: convocationImg,
     date: '2022',
-    location: 'UET Mardan campus'
+    location: 'UET Mardan Campus'
+  },
+  {
+    id: 'gal-pmy',
+    title: 'Prime Minister’s Laptop Award Ceremony',
+    category: 'awards',
+    description: 'Tehleel Basit receiving a high-performance computer from government dignitaries under the Prime Minister’s Youth Programme in recognition of outstanding academic merits.',
+    image: laptopImg,
+    date: '2023',
+    location: 'Mardan, KPK'
   },
   {
     id: 'gal-cheque',
-    title: 'UET Mardan Exhibition First Prize',
+    title: 'UET Mardan Exhibition First Prize & Cheque',
     category: 'awards',
     description: 'Receiving the official PKR 10,000 cash prize cheque and best hardware project award for the Heavy Industries Taxila sponsored thermal image target detection platform.',
-    image: 'https://lh3.googleusercontent.com/d/1iJuFcYDEpFCVdg-keu2t-z5BkxEYoJp_',
+    image: chequeImg,
     date: '2022',
     location: 'Open House Exhibition'
   },
@@ -212,9 +221,18 @@ export const galleryList: GalleryItem[] = [
     title: 'Combat Vehicle Automation System Demonstration',
     category: 'research',
     description: 'Tehleel and the design team presenting the Automatic Target Detection hardware models and combat terrain simulations built for Heavy Industries Taxila.',
-    image: 'https://lh3.googleusercontent.com/d/1O20rzEy1piLJwxyyPC2FvKA5dUIiytu6',
+    image: thermalImg,
     date: '2022',
     location: 'HIT Sponsored Laboratory'
+  },
+  {
+    id: 'gal-portrait',
+    title: 'Official Academic & Engineering Portrait',
+    category: 'portrait',
+    description: 'Official portrait of Tehleel Basit — Telecommunication Engineer, Ph.D. Scholar, and Examination Incharge.',
+    image: avatarImg,
+    date: '2026',
+    location: 'Mardan, KPK'
   }
 ];
 

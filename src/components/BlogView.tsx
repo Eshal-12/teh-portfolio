@@ -5,6 +5,7 @@ import {
   Tag, ArrowLeft, ChevronRight, User, Sparkles
 } from 'lucide-react';
 import { BlogItem } from '../types';
+import { thermalImg } from '../data';
 
 const BLOG_POSTS: BlogItem[] = [
   {
@@ -14,7 +15,7 @@ const BLOG_POSTS: BlogItem[] = [
     date: "June 18, 2026",
     readTime: "8 min read",
     tags: ["Computer Vision", "Defense Projects", "Signal Decoding", "ML"],
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
+    image: thermalImg,
     content: `## 1. Introduction & Background
 
 In defense and tactical surveillance, analog imager feeds are still prevalent due to their low latency and legacy integration. However, automated tracking requires translating these raw analogue signal streams into digital buffers suitable for convolution neural network (CNN) feature extraction. 
