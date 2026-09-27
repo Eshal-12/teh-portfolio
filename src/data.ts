@@ -9,6 +9,7 @@ import {
   GalleryItem
 } from './types';
 
+import portraitHeroImg from './assets/images/tehleel_portrait_hero_1790513016106.jpg';
 import avatarImg from './assets/images/profile_avatar_1784096191467.jpg';
 import convocationImg from './assets/images/bs_convocation_1784096209998.jpg';
 import laptopImg from './assets/images/laptop_award_1784096225279.jpg';
@@ -29,6 +30,7 @@ import galChequeImg from './assets/images/gallery_gal-cheque_user.jpg';
 import galFypImg from './assets/images/gallery_gal-fyp_user.jpg';
 
 export { 
+  portraitHeroImg,
   avatarImg, 
   convocationImg, 
   laptopImg, 
@@ -59,7 +61,7 @@ export const personalInfo = {
   github: '#', // placeholder if needed
   linkedin: 'https://www.linkedin.com/in/tehleel-basit-50bb66216?utm_source=share_via&utm_content=profile&utm_medium=member_android',
   profileText: 'Telecommunication Engineer and Ph.D. Scholar with a strong academic record and hands-on experience in networking, telecom operations, simulation tools, and technical reporting. Skilled in data analysis, problem-solving, teaching, and academic/examination administration, with a research focus on AI-driven anomaly detection in telecom traffic. Seeking to apply strong analytical, technical, and coordination skills in a data-driven or telecom engineering role.',
-  avatar: avatarImg
+  avatar: portraitHeroImg
 };
 
 export const educationList: EducationItem[] = [

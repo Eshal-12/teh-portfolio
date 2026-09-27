@@ -20,7 +20,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
   
   // Main hero profile image custom state (stored in localStorage & backend)
   const [heroAvatar, setHeroAvatar] = useState<string>(() => {
-    return localStorage.getItem('tehleel_hero_avatar') || personalInfo.avatar;
+    return localStorage.getItem('tehleel_hero_avatar_v3') || personalInfo.avatar;
   });
   const [heroUploadSuccess, setHeroUploadSuccess] = useState(false);
   const [isHeroDragging, setIsHeroDragging] = useState(false);
@@ -32,7 +32,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
       const dataUrl = reader.result as string;
       setHeroAvatar(dataUrl);
       try {
-        localStorage.setItem('tehleel_hero_avatar', dataUrl);
+        localStorage.setItem('tehleel_hero_avatar_v3', dataUrl);
       } catch (e) {
         console.warn('Storage limit:', e);
       }
@@ -121,7 +121,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
             <div className={`border transition-all duration-300 ${isHeroDragging ? 'border-[#1C1B19] bg-[#EAE6DF] scale-[1.02]' : 'border-[#1C1B19]/15 bg-[#F4F0E8]'} p-4 text-center rounded-2xl shadow-sm`}>
               <div className="border border-[#1C1B19]/10 bg-white p-2 rounded-xl overflow-hidden shadow-inner">
                 <EditableImage
-                  id="tehleel_hero_avatar"
+                  id="tehleel_hero_avatar_v3"
                   src={heroAvatar}
                   alt="Tehleel Basit - Telecommunication Engineer"
                   aspectRatio="aspect-square"
