@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
-import { GraduationCap, Award, BookOpen, Building2, Star } from 'lucide-react';
+import { GraduationCap, Award, BookOpen, Building2 } from 'lucide-react';
 import { educationList, achievementList } from '../data';
+import { EditableImage } from './EditableImage';
 
 export default function EducationView() {
   const containerVariants = {
@@ -142,20 +143,13 @@ export default function EducationView() {
                   className="group relative flex flex-col bg-white border border-[#1C1B19]/10 p-4 rounded-xl space-y-3 hover:shadow-md transition-shadow"
                 >
                   {/* Visual Image container */}
-                  <div className="h-40 overflow-hidden relative border border-[#1C1B19]/10 bg-[#F4F0E8] p-1 rounded-lg">
-                    <img
-                      src={ach.image}
-                      alt={ach.title}
-                      className="w-full h-full object-cover object-top contrast-[1.02] group-hover:scale-105 transition-all duration-500 rounded-md"
-                      referrerPolicy="no-referrer"
-                      loading="lazy"
-                    />
-                    {/* Overlay badge */}
-                    <div className="absolute top-2.5 left-2.5 bg-white px-2 py-0.5 text-[9px] font-mono text-[#1C1B19] font-bold border border-[#1C1B19]/10 flex items-center space-x-1 uppercase tracking-wider rounded">
-                      <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-500" />
-                      <span>HONOR</span>
-                    </div>
-                  </div>
+                  <EditableImage
+                    id={`achievement_${ach.id}`}
+                    src={ach.image}
+                    alt={ach.title}
+                    showBadge="HONOR"
+                    aspectRatio="h-40 w-full"
+                  />
 
                   {/* Content body */}
                   <div className="flex-grow flex flex-col justify-between space-y-1.5">

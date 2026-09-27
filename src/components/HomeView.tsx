@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { personalInfo, galleryList } from '../data';
 import { GalleryItem } from '../types';
+import { EditableImage } from './EditableImage';
+import { getSavedImage, saveImage } from '../utils/imageStorage';
 
 interface HomeViewProps {
   setCurrentPage: (page: import('../types').PageType) => void;
@@ -117,61 +119,17 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
         >
           <div className="w-full max-w-sm">
             <div className={`border transition-all duration-300 ${isHeroDragging ? 'border-[#1C1B19] bg-[#EAE6DF] scale-[1.02]' : 'border-[#1C1B19]/15 bg-[#F4F0E8]'} p-4 text-center rounded-2xl shadow-sm`}>
-              <div 
-                className="border border-[#1C1B19]/10 bg-white p-2 rounded-xl overflow-hidden cursor-pointer group relative shadow-inner"
-                onClick={() => {
-                  setSelectedPhoto({
-                    id: 'hero-portrait',
-                    title: 'Official Academic & Engineering Portrait',
-                    category: 'academic',
-                    description: 'Official portrait of Tehleel Basit — Telecommunication Engineer, Ph.D. Scholar, and Academic Incharge.',
-                    image: heroAvatar,
-                    date: '2026',
-                    location: 'Mardan, KPK'
-                  });
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsHeroDragging(true);
-                }}
-                onDragLeave={() => setIsHeroDragging(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setIsHeroDragging(false);
-                  const file = e.dataTransfer.files?.[0];
-                  if (file) handleHeroAvatarUpload(file);
-                }}
-                title="Click to view full portrait, or drag & drop photo here"
-              >
-                <img
+              <div className="border border-[#1C1B19]/10 bg-white p-2 rounded-xl overflow-hidden shadow-inner">
+                <EditableImage
+                  id="tehleel_hero_avatar"
                   src={heroAvatar}
                   alt="Tehleel Basit - Telecommunication Engineer"
-                  className="w-full h-auto aspect-square object-cover object-top filter contrast-[1.01] transition-transform duration-300 group-hover:scale-[1.02]"
-                  loading="eager"
-                  decoding="sync"
-                  fetchPriority="high"
-                  referrerPolicy="no-referrer"
-                  onError={() => {
-                    if (heroAvatar !== personalInfo.avatar) {
-                      setHeroAvatar(personalInfo.avatar);
-                    }
+                  aspectRatio="aspect-square"
+                  hideHoverTag={true}
+                  onImageChanged={(newSrc) => {
+                    setHeroAvatar(newSrc);
                   }}
                 />
-
-                {/* Drag over overlay */}
-                {isHeroDragging && (
-                  <div className="absolute inset-0 bg-[#1C1B19]/80 flex flex-col items-center justify-center text-[#FDFBF7] p-4 backdrop-blur-sm z-30">
-                    <UploadCloud className="h-10 w-10 animate-bounce mb-2" />
-                    <span className="font-mono text-xs uppercase tracking-wider font-bold">Drop Photo to Integrate</span>
-                  </div>
-                )}
-
-                <div className="absolute inset-0 bg-[#1C1B19]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white backdrop-blur-[1px] rounded-lg">
-                  <div className="bg-[#1C1B19]/80 px-3 py-1.5 rounded-full flex items-center space-x-1.5 text-xs font-mono">
-                    <Maximize2 className="h-3.5 w-3.5" />
-                    <span>View Full Photo</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -290,31 +248,16 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
               >
                 <div className="space-y-3">
                   {/* Image container */}
-                  <div 
-                    className="relative aspect-[4/3] bg-[#F4F0E8] overflow-hidden rounded-lg border border-[#1C1B19]/10 cursor-pointer"
-                    onClick={() => setSelectedPhoto(item)}
-                    title="Click to view full picture"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover object-top contrast-[1.02] group-hover:scale-105 transition-all duration-500"
-                      referrerPolicy="no-referrer"
-                      loading="lazy"
-                    />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3 text-white">
-                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider">
-                          View Full Picture
-                        </span>
-                        <Maximize2 className="h-4 w-4" />
-                      </div>
-                      {/* Badge */}
-                      <span className="absolute top-3 left-3 px-2 py-0.5 bg-[#1C1B19]/90 border border-white/10 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">
-                        {item.category}
-                      </span>
-                    </div>
+                  <EditableImage
+                    id={`gallery_${item.id}`}
+                    src={item.image}
+                    alt={item.title}
+                    showBadge={item.category}
+                    aspectRatio="aspect-[4/3]"
+                    onViewFull={() => setSelectedPhoto(item)}
+                  />
 
-                    {/* Photo details */}
+                  {/* Photo details */}
                     <div className="space-y-1 px-1 cursor-pointer" onClick={() => setSelectedPhoto(item)}>
                       <h3 className="text-xs font-bold uppercase text-[#1C1B19] tracking-tight group-hover:text-[#1C1B19]/80 transition-colors">
                         {item.title}
@@ -374,12 +317,14 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
 
               {/* Left Side: Photo Frame */}
               <div className="md:w-3/5 bg-[#F4F0E8] p-4 flex flex-col items-center justify-center relative min-h-[300px] md:min-h-0 border-b md:border-b-0 md:border-r border-[#1C1B19]/10 overflow-hidden">
-                <img
-                  src={selectedPhoto.image}
-                  alt={selectedPhoto.title}
-                  className="max-w-full max-h-[50vh] md:max-h-[65vh] object-contain rounded-lg border border-[#1C1B19]/10 shadow-md"
-                  referrerPolicy="no-referrer"
-                />
+                <div className="relative max-w-full max-h-[50vh] md:max-h-[65vh] flex items-center justify-center">
+                  <img
+                    src={getSavedImage(`gallery_${selectedPhoto.id}`, selectedPhoto.image)}
+                    alt={selectedPhoto.title}
+                    className="max-w-full max-h-[50vh] md:max-h-[65vh] object-contain rounded-lg border border-[#1C1B19]/10 shadow-md"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
 
               {/* Right Side: Museum Metadata Label */}

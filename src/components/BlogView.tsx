@@ -5,7 +5,8 @@ import {
   Tag, ArrowLeft, ChevronRight, User, Sparkles
 } from 'lucide-react';
 import { BlogItem } from '../types';
-import { thermalImg } from '../data';
+import { EditableImage } from './EditableImage';
+import { getSavedImage } from '../utils/imageStorage';
 
 const BLOG_POSTS: BlogItem[] = [
   {
@@ -14,8 +15,7 @@ const BLOG_POSTS: BlogItem[] = [
     excerpt: "Exploring the computer vision models and digital signal decoding techniques sponsored by Heavy Industries Taxila (HIT) for automatic target tracking.",
     date: "June 18, 2026",
     readTime: "8 min read",
-    tags: ["Computer Vision", "Defense Projects", "Signal Decoding", "ML"],
-    image: thermalImg,
+    tags: ["Computer Vision"],
     content: `## 1. Introduction & Background
 
 In defense and tactical surveillance, analog imager feeds are still prevalent due to their low latency and legacy integration. However, automated tracking requires translating these raw analogue signal streams into digital buffers suitable for convolution neural network (CNN) feature extraction. 
@@ -51,7 +51,7 @@ The resulting software demonstrated real-time automatic detection at **30 frames
     excerpt: "A deep dive into network traffic segmentation, edge firewall defense, and automated deployment scripts implemented at Fazl-e-Haq College, Mardan.",
     date: "April 12, 2026",
     readTime: "6 min read",
-    tags: ["Networking", "Lab Administration", "Cybersecurity", "IT Operations"],
+    tags: ["Networking", "Lab Administration", "IT Operations"],
     image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800",
     content: `## 1. The Challenge of Scale
 
@@ -89,7 +89,7 @@ Following the deployment of VLAN segmentation and automated anomaly quarantine, 
     excerpt: "Analyzing the operational safeguards, result processing, and data encryption strategies deployed while serving as Assistant Controller at BISE Mardan.",
     date: "January 25, 2026",
     readTime: "5 min read",
-    tags: ["Data Security", "Public Service", "Operations", "Databases"],
+    tags: ["Public Service", "Operations"],
     image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800",
     content: `## 1. A High-Stakes Public Responsibility
 
@@ -119,10 +119,24 @@ export default function BlogView() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [activePost, setActivePost] = useState<BlogItem | null>(null);
 
-  // Extract all unique tags
+  // Explicitly excluded extra topic filters
+  const EXCLUDED_FILTERS = new Set([
+    "Defense Projects",
+    "Signal Decoding",
+    "ML",
+    "Database",
+    "Databases",
+    "Data Security",
+    "Cybersecurity",
+    "Cyber Security",
+    "Target Identification",
+    "Uncooled Thermal Imager"
+  ]);
+
+  // Extract all unique tags excluding removed extra filters
   const allTags = Array.from(
     new Set(BLOG_POSTS.flatMap(post => post.tags))
-  );
+  ).filter(tag => !EXCLUDED_FILTERS.has(tag));
 
   // Filter posts based on search term and selected tag
   const filteredPosts = BLOG_POSTS.filter(post => {
@@ -171,26 +185,43 @@ export default function BlogView() {
 
             {/* Main Article Container */}
             <article className="bg-white border border-[#1C1B19]/15 rounded-2xl overflow-hidden shadow-sm max-w-4xl mx-auto">
-              <div className="relative h-64 sm:h-96 w-full">
-                <img 
-                  src={activePost.image} 
-                  alt={activePost.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/80 via-[#1C1B19]/20 to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {activePost.image ? (
+                <div className="relative h-64 sm:h-96 w-full">
+                  <EditableImage
+                    id={activePost.id === 'blog-fyp-thermal' ? 'gallery_gal-fyp' : `blog_${activePost.id}`}
+                    src={activePost.image}
+                    alt={activePost.title}
+                    aspectRatio="h-64 sm:h-96 w-full"
+                    containerClassName="rounded-none border-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/80 via-[#1C1B19]/20 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-6 left-6 right-6 text-white pointer-events-none">
+                    <div className="flex flex-wrap gap-1.5 mb-2.5">
+                      {activePost.tags.map(t => (
+                        <span key={t} className="px-2 py-0.5 bg-amber-400 text-[#1C1B19] text-[9px] font-mono font-bold uppercase tracking-widest rounded-md">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <h2 className="text-xl sm:text-3xl font-serif font-bold tracking-tight text-white leading-tight">
+                      {activePost.title}
+                    </h2>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 sm:p-10 border-b border-[#1C1B19]/10 bg-[#F4F0E8]/50">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
                     {activePost.tags.map(t => (
-                      <span key={t} className="px-2 py-0.5 bg-amber-400 text-[#1C1B19] text-[9px] font-mono font-bold uppercase tracking-widest rounded-md">
+                      <span key={t} className="px-2 py-0.5 bg-[#1C1B19] text-white text-[9px] font-mono font-bold uppercase tracking-widest rounded-md">
                         {t}
                       </span>
                     ))}
                   </div>
-                  <h2 className="text-xl sm:text-3xl font-serif font-bold tracking-tight text-white leading-tight">
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#1C1B19] leading-tight">
                     {activePost.title}
                   </h2>
                 </div>
-              </div>
+              )}
 
               <div className="p-6 sm:p-10 space-y-6">
                 {/* Meta details */}
@@ -327,15 +358,18 @@ export default function BlogView() {
                     }}
                     className="bg-white border border-[#1C1B19]/15 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer group"
                   >
-                    {/* Image Header */}
-                    <div className="relative h-48 w-full overflow-hidden">
-                      <img 
-                        src={post.image} 
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/50 to-transparent opacity-60" />
-                    </div>
+                    {/* Image Header if present */}
+                    {post.image && (
+                      <div className="relative h-48 w-full overflow-hidden">
+                        <EditableImage
+                          id={post.id === 'blog-fyp-thermal' ? 'gallery_gal-fyp' : `blog_${post.id}`}
+                          src={post.image}
+                          alt={post.title}
+                          aspectRatio="h-48 w-full"
+                          containerClassName="rounded-none border-0"
+                        />
+                      </div>
+                    )}
 
                     {/* Content Section */}
                     <div className="p-5 flex-grow flex flex-col justify-between space-y-4">

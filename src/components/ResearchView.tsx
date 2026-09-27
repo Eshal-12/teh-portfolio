@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, Cpu, Award, Globe, Check, Copy, Maximize2, X } from 'lucide-react';
+import { BookOpen, Cpu, Award, Globe, Check, Copy, Maximize2, X, Camera } from 'lucide-react';
 import { projectsList, publicationsList } from '../data';
+import { EditableImage } from './EditableImage';
+import { getSavedImage, saveImage } from '../utils/imageStorage';
 
 export default function ResearchView() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [previewImage, setPreviewImage] = useState<{ src: string; title: string; subtitle: string } | null>(null);
+  const [previewImage, setPreviewImage] = useState<{ id: string; src: string; title: string; subtitle: string } | null>(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -77,31 +79,29 @@ export default function ResearchView() {
                   </h3>
                 </div>
 
-                {/* Project Photograph if available */}
+                {/* Project Photograph if available with upload capability */}
                 {project.image && (
-                  <div 
-                    onClick={() => setPreviewImage({
-                      src: project.image,
-                      title: project.title,
-                      subtitle: `${project.sponsor} · ${project.year}`
-                    })}
-                    className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-[#1C1B19]/10 bg-[#F4F0E8] cursor-pointer group/img shadow-sm"
-                  >
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover object-center group-hover/img:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/70 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end justify-between p-3 text-white">
-                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider">
-                        Click to view full photo
-                      </span>
-                      <Maximize2 className="h-4 w-4" />
-                    </div>
-                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 bg-[#1C1B19]/90 border border-white/20 text-white text-[9px] font-mono font-bold uppercase tracking-wider rounded">
-                      Project Demonstration
-                    </div>
+                  <div className="w-full">
+                    {(() => {
+                      const imageStorageId = (project.id === 'proj-1' || project.id === 'proj-bs') 
+                        ? 'gallery_gal-fyp' 
+                        : `project_${project.id}`;
+                      return (
+                        <EditableImage
+                          id={imageStorageId}
+                          src={project.image}
+                          alt={project.title}
+                          showBadge="Project Demonstration"
+                          aspectRatio="aspect-[16/9]"
+                          onViewFull={() => setPreviewImage({
+                            id: imageStorageId,
+                            src: getSavedImage(imageStorageId, project.image),
+                            title: project.title,
+                            subtitle: `${project.sponsor} · ${project.year}`
+                          })}
+                        />
+                      );
+                    })()}
                   </div>
                 )}
 

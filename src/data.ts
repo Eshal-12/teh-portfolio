@@ -14,8 +14,9 @@ import convocationImg from './assets/images/bs_convocation_1784096209998.jpg';
 import laptopImg from './assets/images/laptop_award_1784096225279.jpg';
 import thermalImg from './assets/images/thermal_project_1784096244618.jpg';
 import chequeImg from './assets/images/winner_cheque_1784096261028.jpg';
+import cyberImg from './assets/images/cyber_telecom_ai_1790437242452.jpg';
 
-export { avatarImg, convocationImg, laptopImg, thermalImg, chequeImg };
+export { avatarImg, convocationImg, laptopImg, thermalImg, chequeImg, cyberImg };
 
 export const personalInfo = {
   name: 'Tehleel Basit',
@@ -163,7 +164,7 @@ export const projectsList: ProjectItem[] = [
     title: 'AI-Driven Anomaly Detection for Cybersecurity in Telecommunication Traffic',
     sponsor: 'UET Mardan · MS Thesis',
     description: 'Developed an advanced framework applying Machine Learning/Deep Learning to identify and mitigate cyber threats, intrusions, and traffic anomalies in telecommunication networks.',
-    image: '',
+    image: cyberImg,
     year: '2022 – 2026',
     type: 'ms',
     highlights: [

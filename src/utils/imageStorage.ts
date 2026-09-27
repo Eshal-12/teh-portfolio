@@ -17,6 +17,15 @@ export function saveImage(key: string, dataUrl: string): void {
     console.warn('Storage quota exceeded for image key:', key, e);
   }
 
+  // Also broadcast to other components on the page
+  try {
+    window.dispatchEvent(
+      new CustomEvent('custom_image_updated', {
+        detail: { key, dataUrl }
+      })
+    );
+  } catch {}
+
   // Also sync to backend server if available
   try {
     fetch('/api/upload-image', {

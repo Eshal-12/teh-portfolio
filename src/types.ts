@@ -8,7 +8,7 @@ export interface BlogItem {
   date: string;
   readTime: string;
   tags: string[];
-  image: string;
+  image?: string;
 }
 
 export interface EducationItem {
