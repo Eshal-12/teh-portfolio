@@ -7,6 +7,8 @@ import {
 import { BlogItem } from '../types';
 import { EditableImage } from './EditableImage';
 import { getSavedImage } from '../utils/imageStorage';
+import blogLabInfraImg from '../assets/images/blog_lab_infra.jpg';
+import blogBiseDataImg from '../assets/images/blog_bise_data.jpg';
 
 const BLOG_POSTS: BlogItem[] = [
   {
@@ -52,7 +54,7 @@ The resulting software demonstrated real-time automatic detection at **30 frames
     date: "April 12, 2026",
     readTime: "6 min read",
     tags: ["Networking", "Lab Administration", "IT Operations"],
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800",
+    image: blogLabInfraImg,
     content: `## 1. The Challenge of Scale
 
 Serving as a Computer Science Lecturer at **Fazl-e-Haq College, Mardan** involves more than instructing curriculum. I manage the administration of four highly utilized, advanced computer networking and systems labs housing over **120 high-performance workstations**.
@@ -90,7 +92,7 @@ Following the deployment of VLAN segmentation and automated anomaly quarantine, 
     date: "January 25, 2026",
     readTime: "5 min read",
     tags: ["Public Service", "Operations"],
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800",
+    image: blogBiseDataImg,
     content: `## 1. A High-Stakes Public Responsibility
 
 Serving as the **Assistant Controller of Examinations** at the Board of Intermediate and Secondary Education (BISE) Mardan places me at the center of high-stakes public data management. Every year, our systems process and manage examinations for tens of thousands of students across the region. 

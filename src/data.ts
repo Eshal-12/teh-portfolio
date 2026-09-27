@@ -15,8 +15,36 @@ import laptopImg from './assets/images/laptop_award_1784096225279.jpg';
 import thermalImg from './assets/images/thermal_project_1784096244618.jpg';
 import chequeImg from './assets/images/winner_cheque_1784096261028.jpg';
 import cyberImg from './assets/images/cyber_telecom_ai_1790437242452.jpg';
+import pecLicenseImg from './assets/images/pec_engineer_license_1790437228755.jpg';
 
-export { avatarImg, convocationImg, laptopImg, thermalImg, chequeImg, cyberImg };
+// Uploaded & customized visual assets directly bundled into source code
+import achDeanImg from './assets/images/achievement_ach-dean_user.jpg';
+import achOpenWinnerImg from './assets/images/achievement_ach-open-winner_user.jpg';
+import achPecImg from './assets/images/achievement_ach-pec_user.jpg';
+import achPmyImg from './assets/images/achievement_ach-pmy_user.jpg';
+
+import galConvocationImg from './assets/images/gallery_gal-convocation_user.jpg';
+import galPmyImg from './assets/images/gallery_gal-pmy_user.jpg';
+import galChequeImg from './assets/images/gallery_gal-cheque_user.jpg';
+import galFypImg from './assets/images/gallery_gal-fyp_user.jpg';
+
+export { 
+  avatarImg, 
+  convocationImg, 
+  laptopImg, 
+  thermalImg, 
+  chequeImg, 
+  cyberImg,
+  pecLicenseImg,
+  achDeanImg,
+  achOpenWinnerImg,
+  achPecImg,
+  achPmyImg,
+  galConvocationImg,
+  galPmyImg,
+  galChequeImg,
+  galFypImg
+};
 
 export const personalInfo = {
   name: 'Tehleel Basit',
@@ -136,25 +164,25 @@ export const achievementList: AchievementItem[] = [
     id: 'ach-dean',
     title: "Dean's List Top Graduate",
     description: "Honored on the University Dean's List for exceptional academic performance during the BS Telecommunication Engineering program at UET Mardan.",
-    image: convocationImg
+    image: achDeanImg
   },
   {
     id: 'ach-pmy',
     title: "Prime Minister's Youth Award",
     description: "Awarded a high-performance laptop and certificate under the Prime Minister's Youth Programme in recognition of academic excellence.",
-    image: laptopImg
+    image: achPmyImg
   },
   {
     id: 'ach-open-winner',
     title: "Best FYP Award & Cheque",
     description: "Awarded the Best BS Final Year Project at UET Mardan's Open House Exhibition (2022) with a PKR 10,000 winner's cash prize for the thermal-imaging system.",
-    image: chequeImg
+    image: achOpenWinnerImg
   },
   {
     id: 'ach-pec',
     title: "PEC Registered Engineer (R.E.)",
     description: "Officially registered and certified as a Registered Engineer (R.E.) by the Pakistan Engineering Council (PEC), authorizing professional engineering practice in Telecommunication Engineering and validating alignment with national engineering standards.",
-    image: convocationImg
+    image: achPecImg
   }
 ];
 
@@ -178,7 +206,7 @@ export const projectsList: ProjectItem[] = [
     title: 'Automatic Target Detection & Identification from Analogue Thermal Imager Feed',
     sponsor: 'Heavy Industries Taxila (HIT) Sponsored · BS Final Year Project',
     description: 'Designed and built an automated intelligence computer vision system that interprets analogue feeds from combat thermal cameras to detect and categorize military vehicles/personnel.',
-    image: thermalImg,
+    image: galFypImg,
     year: '2021 — 2022',
     type: 'bs',
     highlights: [
@@ -195,7 +223,7 @@ export const galleryList: GalleryItem[] = [
     title: 'UET Mardan Academic Convocation',
     category: 'academic',
     description: 'Tehleel Basit at the BS Telecommunication Engineering convocation and leadership investiture ceremony, celebrating top academic achievements with peer student commanders.',
-    image: convocationImg,
+    image: galConvocationImg,
     date: '2022',
     location: 'UET Mardan Campus'
   },
@@ -204,7 +232,7 @@ export const galleryList: GalleryItem[] = [
     title: 'Prime Minister’s Laptop Award Ceremony',
     category: 'awards',
     description: 'Tehleel Basit receiving a high-performance computer from government dignitaries under the Prime Minister’s Youth Programme in recognition of outstanding academic merits.',
-    image: laptopImg,
+    image: galPmyImg,
     date: '2023',
     location: 'Mardan, KPK'
   },
@@ -213,7 +241,7 @@ export const galleryList: GalleryItem[] = [
     title: 'UET Mardan Exhibition First Prize & Cheque',
     category: 'awards',
     description: 'Receiving the official PKR 10,000 cash prize cheque and best hardware project award for the Heavy Industries Taxila sponsored thermal image target detection platform.',
-    image: chequeImg,
+    image: galChequeImg,
     date: '2022',
     location: 'Open House Exhibition'
   },
@@ -222,7 +250,7 @@ export const galleryList: GalleryItem[] = [
     title: 'Combat Vehicle Automation System Demonstration',
     category: 'research',
     description: 'Tehleel and the design team presenting the Automatic Target Detection hardware models and combat terrain simulations built for Heavy Industries Taxila.',
-    image: thermalImg,
+    image: galFypImg,
     date: '2022',
     location: 'HIT Sponsored Laboratory'
   }
