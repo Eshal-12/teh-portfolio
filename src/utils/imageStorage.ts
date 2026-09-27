@@ -3,7 +3,7 @@
  */
 export function getSavedImage(key: string, defaultImage: string): string {
   try {
-    const saved = localStorage.getItem(`custom_img_${key}`);
+    const saved = localStorage.getItem(`custom_img_v2_${key}`);
     return saved || defaultImage;
   } catch {
     return defaultImage;
@@ -12,7 +12,7 @@ export function getSavedImage(key: string, defaultImage: string): string {
 
 export function saveImage(key: string, dataUrl: string): void {
   try {
-    localStorage.setItem(`custom_img_${key}`, dataUrl);
+    localStorage.setItem(`custom_img_v2_${key}`, dataUrl);
   } catch (e) {
     console.warn('Storage quota exceeded for image key:', key, e);
   }

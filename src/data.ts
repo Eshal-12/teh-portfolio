@@ -19,6 +19,8 @@ import cyberImg from './assets/images/cyber_telecom_ai_1790437242452.jpg';
 import pecLicenseImg from './assets/images/pec_engineer_license_1790437228755.jpg';
 
 // Uploaded & customized visual assets directly bundled into source code
+import combatVehicleDemoImg from './assets/images/combat_vehicle_demo.jpg';
+import uetMardanPrizeImg from './assets/images/uet_mardan_prize.jpg';
 import achDeanImg from './assets/images/achievement_ach-dean_user.jpg';
 import achOpenWinnerImg from './assets/images/achievement_ach-open-winner_user.jpg';
 import achPecImg from './assets/images/achievement_ach-pec_user.jpg';
@@ -38,6 +40,8 @@ export {
   chequeImg, 
   cyberImg,
   pecLicenseImg,
+  combatVehicleDemoImg,
+  uetMardanPrizeImg,
   achDeanImg,
   achOpenWinnerImg,
   achPecImg,
@@ -178,7 +182,7 @@ export const achievementList: AchievementItem[] = [
     id: 'ach-open-winner',
     title: "Best FYP Award & Cheque",
     description: "Awarded the Best BS Final Year Project at UET Mardan's Open House Exhibition (2022) with a PKR 10,000 winner's cash prize for the thermal-imaging system.",
-    image: achOpenWinnerImg
+    image: uetMardanPrizeImg
   },
   {
     id: 'ach-pec',
@@ -208,7 +212,7 @@ export const projectsList: ProjectItem[] = [
     title: 'Automatic Target Detection & Identification from Analogue Thermal Imager Feed',
     sponsor: 'Heavy Industries Taxila (HIT) Sponsored · BS Final Year Project',
     description: 'Designed and built an automated intelligence computer vision system that interprets analogue feeds from combat thermal cameras to detect and categorize military vehicles/personnel.',
-    image: galFypImg,
+    image: combatVehicleDemoImg,
     year: '2021 — 2022',
     type: 'bs',
     highlights: [
@@ -243,7 +247,7 @@ export const galleryList: GalleryItem[] = [
     title: 'UET Mardan Exhibition First Prize & Cheque',
     category: 'awards',
     description: 'Receiving the official PKR 10,000 cash prize cheque and best hardware project award for the Heavy Industries Taxila sponsored thermal image target detection platform.',
-    image: galChequeImg,
+    image: uetMardanPrizeImg,
     date: '2022',
     location: 'Open House Exhibition'
   },
@@ -252,7 +256,7 @@ export const galleryList: GalleryItem[] = [
     title: 'Combat Vehicle Automation System Demonstration',
     category: 'research',
     description: 'Tehleel and the design team presenting the Automatic Target Detection hardware models and combat terrain simulations built for Heavy Industries Taxila.',
-    image: galFypImg,
+    image: combatVehicleDemoImg,
     date: '2022',
     location: 'HIT Sponsored Laboratory'
   }
