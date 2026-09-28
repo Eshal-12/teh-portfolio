@@ -13,6 +13,7 @@ interface EditableImageProps {
   onImageChanged?: (newSrc: string) => void;
   showBadge?: string;
   badgePosition?: 'top-left' | 'top-right' | 'bottom-left';
+  allowUpload?: boolean;
   alwaysShowUploadButton?: boolean;
   uploadButtonLabel?: string;
   hideHoverTag?: boolean;
@@ -32,7 +33,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
 }) => {
   const [currentSrc, setCurrentSrc] = useState<string>(() => getSavedImage(id, src));
 
-  // Sync if prop changes or storage updates from another component
+  // Sync if prop changes or storage updates
   useEffect(() => {
     setCurrentSrc(getSavedImage(id, src));
 
@@ -43,8 +44,19 @@ export const EditableImage: React.FC<EditableImageProps> = ({
       }
     };
 
+    const handleRemoved = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.key === id) {
+        setCurrentSrc(src);
+      }
+    };
+
     window.addEventListener('custom_image_updated', handleUpdate);
-    return () => window.removeEventListener('custom_image_updated', handleUpdate);
+    window.addEventListener('custom_image_removed', handleRemoved);
+    return () => {
+      window.removeEventListener('custom_image_updated', handleUpdate);
+      window.removeEventListener('custom_image_removed', handleRemoved);
+    };
   }, [id, src]);
 
   const badgePositionClasses = {
@@ -65,9 +77,17 @@ export const EditableImage: React.FC<EditableImageProps> = ({
         className={`w-full h-full object-cover object-top contrast-[1.02] transition-transform duration-500 group-hover/img:scale-105 ${className}`}
         loading="lazy"
         referrerPolicy="no-referrer"
-        onError={() => {
+        onError={(e) => {
           if (currentSrc !== src) {
             setCurrentSrc(src);
+          } else {
+            // Strip Vite's hash if present (e.g. name-B8zdGINM.jpg -> name.jpg)
+            const rawFilename = src.split('/').pop()?.split('?')[0] || '';
+            const unhashed = rawFilename.replace(/-[A-Za-z0-9_-]{8,}(\.[a-zA-Z0-9]+)$/, '$1');
+            const target = e.currentTarget;
+            if (unhashed && !target.src.endsWith(`/${unhashed}`)) {
+              target.src = `/${unhashed}`;
+            }
           }
         }}
       />
@@ -91,3 +111,4 @@ export const EditableImage: React.FC<EditableImageProps> = ({
     </div>
   );
 };
+

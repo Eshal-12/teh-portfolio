@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowRight, Download, Cpu, GraduationCap, 
-  Briefcase, Award, X, MapPin, Calendar, Maximize2, Mic, MessageSquare,
-  Camera, Check, UploadCloud
+  Briefcase, Award, X, MapPin, Calendar, Maximize2, Mic, MessageSquare
 } from 'lucide-react';
 import { personalInfo, galleryList } from '../data';
 import { GalleryItem } from '../types';
 import { EditableImage } from './EditableImage';
-import { getSavedImage, saveImage } from '../utils/imageStorage';
+import { getSavedImage } from '../utils/imageStorage';
 
 interface HomeViewProps {
   setCurrentPage: (page: import('../types').PageType) => void;
@@ -18,39 +17,10 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
   const [activeCategory, setActiveCategory] = useState<'all' | 'academic' | 'research' | 'awards'>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
   
-  // Main hero profile image custom state (stored in localStorage & backend)
+  // Main hero profile image state (defaults to official original profile avatar)
   const [heroAvatar, setHeroAvatar] = useState<string>(() => {
-    return localStorage.getItem('tehleel_hero_avatar_v3') || personalInfo.avatar;
+    return personalInfo.avatar;
   });
-  const [heroUploadSuccess, setHeroUploadSuccess] = useState(false);
-  const [isHeroDragging, setIsHeroDragging] = useState(false);
-
-  const handleHeroAvatarUpload = (file: File) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = reader.result as string;
-      setHeroAvatar(dataUrl);
-      try {
-        localStorage.setItem('tehleel_hero_avatar_v3', dataUrl);
-      } catch (e) {
-        console.warn('Storage limit:', e);
-      }
-      setHeroUploadSuccess(true);
-      setTimeout(() => setHeroUploadSuccess(false), 5000);
-
-      try {
-        await fetch('/api/upload-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl, target: 'avatar' })
-        });
-      } catch (err) {
-        console.error('Failed to sync avatar to server:', err);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -118,10 +88,10 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
           className="lg:col-span-5 flex flex-col items-center"
         >
           <div className="w-full max-w-sm">
-            <div className={`border transition-all duration-300 ${isHeroDragging ? 'border-[#1C1B19] bg-[#EAE6DF] scale-[1.02]' : 'border-[#1C1B19]/15 bg-[#F4F0E8]'} p-4 text-center rounded-2xl shadow-sm`}>
+            <div className="border border-[#1C1B19]/15 bg-[#F4F0E8] p-4 text-center rounded-2xl shadow-sm">
               <div className="border border-[#1C1B19]/10 bg-white p-2 rounded-xl overflow-hidden shadow-inner">
                 <EditableImage
-                  id="tehleel_hero_avatar_v3"
+                  id="tehleel_hero_avatar_v5"
                   src={heroAvatar}
                   alt="Tehleel Basit - Telecommunication Engineer"
                   aspectRatio="aspect-square"

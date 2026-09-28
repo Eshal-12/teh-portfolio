@@ -84,7 +84,7 @@ export default function ResearchView() {
                   <div className="w-full">
                     {(() => {
                       const imageStorageId = (project.id === 'proj-1' || project.id === 'proj-bs') 
-                        ? 'gallery_gal-fyp' 
+                        ? 'combat_vehicle_demo_res' 
                         : `project_${project.id}`;
                       return (
                         <EditableImage

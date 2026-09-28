@@ -9,14 +9,14 @@ import {
   GalleryItem
 } from './types';
 
-import portraitHeroImg from './assets/images/tehleel_portrait_hero_1790513016106.jpg';
-import avatarImg from './assets/images/profile_avatar_1784096191467.jpg';
-import convocationImg from './assets/images/bs_convocation_1784096209998.jpg';
-import laptopImg from './assets/images/laptop_award_1784096225279.jpg';
+import portraitHeroImg from './assets/images/tehleel_hero_avatar_v5_user.jpg';
+import avatarImg from './assets/images/tehleel_hero_avatar_v5_user.jpg';
+import convocationImg from './assets/images/gallery_gal-convocation_user.jpg';
+import laptopImg from './assets/images/gallery_gal-pmy_user.jpg';
 import thermalImg from './assets/images/thermal_project_1784096244618.jpg';
 import chequeImg from './assets/images/winner_cheque_1784096261028.jpg';
 import cyberImg from './assets/images/cyber_telecom_ai_1790437242452.jpg';
-import pecLicenseImg from './assets/images/pec_engineer_license_1790437228755.jpg';
+import pecLicenseImg from './assets/images/achievement_ach-pec_user.jpg';
 
 // Uploaded & customized visual assets directly bundled into source code
 import combatVehicleDemoImg from './assets/images/combat_vehicle_demo.jpg';
@@ -65,7 +65,7 @@ export const personalInfo = {
   github: '#', // placeholder if needed
   linkedin: 'https://www.linkedin.com/in/tehleel-basit-50bb66216?utm_source=share_via&utm_content=profile&utm_medium=member_android',
   profileText: 'Telecommunication Engineer and Ph.D. Scholar with a strong academic record and hands-on experience in networking, telecom operations, simulation tools, and technical reporting. Skilled in data analysis, problem-solving, teaching, and academic/examination administration, with a research focus on AI-driven anomaly detection in telecom traffic. Seeking to apply strong analytical, technical, and coordination skills in a data-driven or telecom engineering role.',
-  avatar: portraitHeroImg
+  avatar: avatarImg
 };
 
 export const educationList: EducationItem[] = [

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wrench, Send, MessageSquare, Languages, ExternalLink, Check, ShieldCheck } from 'lucide-react';
+import { Wrench, Send, MessageSquare, Languages, ExternalLink, Check } from 'lucide-react';
 import { skillsList, certificationsList, languages, interests, personalInfo } from '../data';
-import { EditableImage } from './EditableImage';
-import pecLicenseImg from '../assets/images/pec_engineer_license_1790437228755.jpg';
 
 export default function SkillsView() {
   const [activeCategory, setActiveCategory] = useState<'all' | 'telecom' | 'analysis' | 'software' | 'soft'>('all');
@@ -149,20 +147,6 @@ export default function SkillsView() {
                   </li>
                 ))}
               </ul>
-
-              {/* Visual Certificate / License Upload Box */}
-              <div className="pt-2">
-                <EditableImage
-                  id="skills_cert_card"
-                  src={pecLicenseImg}
-                  alt="Engineering Licensure Certificate"
-                  aspectRatio="aspect-[16/9]"
-                  showBadge="CERTIFICATE"
-                />
-                <span className="block text-[9.5px] font-mono text-[#1C1B19]/50 mt-1.5">
-                  Official telecommunications engineering credential & licensure record.
-                </span>
-              </div>
             </div>
 
             {/* Languages */}

@@ -1,8 +1,6 @@
 import { motion } from 'motion/react';
-import { MapPin, Server, Layers, Award, ShieldCheck } from 'lucide-react';
+import { MapPin, Server, Layers, Award } from 'lucide-react';
 import { experienceList } from '../data';
-import { EditableImage } from './EditableImage';
-import pecLicenseImg from '../assets/images/pec_engineer_license_1790437228755.jpg';
 
 export default function ExperienceView() {
   const containerVariants = {
@@ -172,34 +170,6 @@ export default function ExperienceView() {
             <h4 className="text-[10px] font-mono font-bold text-[#1C1B19] tracking-wider uppercase">Technical Documentation</h4>
             <p className="text-[11px] font-sans font-light tracking-wide text-[#1C1B19]/75 leading-relaxed">
               Extensively trained in generating physical assets audits, examination guidelines booklets, grading rubrics, and educational networking reports.
-            </p>
-          </motion.div>
-
-          {/* PEC Professional License Document Showcase */}
-          <motion.div 
-            variants={itemVariants}
-            className="p-5 border border-[#1C1B19]/10 bg-white space-y-3 rounded-xl shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1.5 text-xs font-mono font-bold uppercase tracking-wider text-[#1C1B19]">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                <span>PEC Registered Engineer</span>
-              </div>
-              <span className="text-[9px] font-mono font-bold bg-[#EAE6DF] px-2 py-0.5 rounded text-[#1C1B19]">
-                VERIFIED
-              </span>
-            </div>
-
-            <EditableImage
-              id="pec_license_card"
-              src={pecLicenseImg}
-              alt="PEC Professional Engineer License Certificate"
-              aspectRatio="aspect-[4/3]"
-              showBadge="PEC LICENSE"
-            />
-
-            <p className="text-[10px] font-mono text-[#1C1B19]/60 leading-normal">
-              Official Pakistan Engineering Council (PEC) registered telecommunication engineer credential and professional license.
             </p>
           </motion.div>
         </motion.div>

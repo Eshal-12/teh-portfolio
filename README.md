@@ -1,7 +1,7 @@
 # Tehleel Basit — Telecommunication Engineer & Academic Portfolio
 
 <p align="center">
-  <img src="public/tehleel_portrait_hero_1790513016106.jpg" alt="Tehleel Basit" width="220" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+  <img src="./public/tehleel_hero_avatar_v5_user.jpg" alt="Engr. Tehleel Basit" width="220" />
 </p>
 
 <h3 align="center">Engr. Tehleel Basit</h3>
@@ -28,11 +28,12 @@ Official professional portfolio and academic showcase of **Engr. Tehleel Basit**
 
 | Project / Recognition | Preview | Details |
 | :--- | :---: | :--- |
-| **Combat Vehicle Automation System** | <img src="public/combat_vehicle_demo.jpg" width="180" alt="Combat Vehicle Automation System" /> | Automatic target detection & categorization from combat thermal feeds sponsored by Heavy Industries Taxila (HIT). |
-| **UET Mardan Exhibition 1st Prize** | <img src="public/uet_mardan_prize.jpg" width="180" alt="UET Mardan Exhibition 1st Prize" /> | Official PKR 10,000 winner's cheque ceremony & best hardware project trophy at UET Mardan. |
-| **Prime Minister's Merit Laptop Award** | <img src="public/achievement_ach-pmy_user.jpg" width="180" alt="PM Laptop Scheme" /> | Higher Education Commission merit laptop distribution ceremony recognition. |
-| **BS Convocation & Degree** | <img src="public/gallery_gal-convocation_user.jpg" width="180" alt="BS Convocation" /> | Graduated with 3.48 CGPA (81.65%) from UET Mardan. |
-| **PEC Engineering License** | <img src="public/pec_engineer_license_1790437228755.jpg" width="180" alt="PEC License" /> | Licensed Telecommunication Engineer with Pakistan Engineering Council. |
+| **Dean's List Top Graduate** | <img src="./public/achievement_ach-dean_user.jpg" width="180" alt="Dean's List Top Graduate" /> | Honored on the University Dean's List for exceptional academic performance in BS Telecommunication Engineering. |
+| **PEC Registered Engineer License** | <img src="./public/achievement_ach-pec_user.jpg" width="180" alt="PEC Registered Engineer" /> | Certified as a Registered Engineer (R.E. TELE/8141) by Pakistan Engineering Council. |
+| **Prime Minister's Merit Laptop Award** | <img src="./public/gallery_gal-pmy_user.jpg" width="180" alt="PM Laptop Scheme" /> | Higher Education Commission merit laptop distribution ceremony recognition. |
+| **Academic Convocation Ceremony** | <img src="./public/gallery_gal-convocation_user.jpg" width="180" alt="Academic Convocation Ceremony" /> | UET Mardan BS Telecommunication Engineering convocation and leadership investiture. |
+| **Combat Vehicle Automation System** | <img src="./public/combat_vehicle_demo.jpg" width="180" alt="Combat Vehicle Automation System" /> | Automatic target detection & categorization from combat thermal feeds sponsored by Heavy Industries Taxila (HIT). |
+| **UET Mardan Exhibition 1st Prize** | <img src="./public/uet_mardan_prize.jpg" width="180" alt="UET Mardan Exhibition 1st Prize" /> | Official PKR 10,000 winner's cheque ceremony & best hardware project trophy at UET Mardan. |
 
 ---
 

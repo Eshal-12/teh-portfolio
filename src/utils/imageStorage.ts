@@ -4,7 +4,10 @@
 export function getSavedImage(key: string, defaultImage: string): string {
   try {
     const saved = localStorage.getItem(`custom_img_v2_${key}`);
-    return saved || defaultImage;
+    if (saved && (saved.startsWith('data:image/') || saved.startsWith('http://') || saved.startsWith('https://') || saved.startsWith('/'))) {
+      return saved;
+    }
+    return defaultImage;
   } catch {
     return defaultImage;
   }
@@ -34,6 +37,28 @@ export function saveImage(key: string, dataUrl: string): void {
       body: JSON.stringify({ image: dataUrl, target: key })
     }).catch(() => {});
   } catch {}
+}
+
+export function removeSavedImage(key: string): void {
+  try {
+    localStorage.removeItem(`custom_img_v2_${key}`);
+  } catch {}
+  try {
+    window.dispatchEvent(
+      new CustomEvent('custom_image_removed', {
+        detail: { key }
+      })
+    );
+  } catch {}
+}
+
+export function hasSavedCustomImage(key: string): boolean {
+  try {
+    const val = localStorage.getItem(`custom_img_v2_${key}`);
+    return !!val;
+  } catch {
+    return false;
+  }
 }
 
 export function readFileAsDataURL(file: File): Promise<string> {
