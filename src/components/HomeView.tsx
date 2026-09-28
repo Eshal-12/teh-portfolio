@@ -7,7 +7,6 @@ import {
 import { personalInfo, galleryList } from '../data';
 import { GalleryItem } from '../types';
 import { EditableImage } from './EditableImage';
-import { getSavedImage } from '../utils/imageStorage';
 
 interface HomeViewProps {
   setCurrentPage: (page: import('../types').PageType) => void;
@@ -289,7 +288,7 @@ export default function HomeView({ setCurrentPage }: HomeViewProps) {
               <div className="md:w-3/5 bg-[#F4F0E8] p-4 flex flex-col items-center justify-center relative min-h-[300px] md:min-h-0 border-b md:border-b-0 md:border-r border-[#1C1B19]/10 overflow-hidden">
                 <div className="relative max-w-full max-h-[50vh] md:max-h-[65vh] flex items-center justify-center">
                   <img
-                    src={getSavedImage(`gallery_${selectedPhoto.id}`, selectedPhoto.image)}
+                    src={selectedPhoto.image}
                     alt={selectedPhoto.title}
                     className="max-w-full max-h-[50vh] md:max-h-[65vh] object-contain rounded-lg border border-[#1C1B19]/10 shadow-md"
                     referrerPolicy="no-referrer"

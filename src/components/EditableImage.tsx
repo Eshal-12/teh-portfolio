@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Maximize2 } from 'lucide-react';
-import { getSavedImage } from '../utils/imageStorage';
 
 interface EditableImageProps {
   id: string; // unique storage key
@@ -31,33 +30,12 @@ export const EditableImage: React.FC<EditableImageProps> = ({
   badgePosition = 'top-left',
   hideHoverTag = false
 }) => {
-  const [currentSrc, setCurrentSrc] = useState<string>(() => getSavedImage(id, src));
+  const [currentSrc, setCurrentSrc] = useState<string>(src);
 
-  // Sync if prop changes or storage updates
+  // Sync if prop changes
   useEffect(() => {
-    setCurrentSrc(getSavedImage(id, src));
-
-    const handleUpdate = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail && detail.key === id && detail.dataUrl) {
-        setCurrentSrc(detail.dataUrl);
-      }
-    };
-
-    const handleRemoved = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail && detail.key === id) {
-        setCurrentSrc(src);
-      }
-    };
-
-    window.addEventListener('custom_image_updated', handleUpdate);
-    window.addEventListener('custom_image_removed', handleRemoved);
-    return () => {
-      window.removeEventListener('custom_image_updated', handleUpdate);
-      window.removeEventListener('custom_image_removed', handleRemoved);
-    };
-  }, [id, src]);
+    setCurrentSrc(src);
+  }, [src]);
 
   const badgePositionClasses = {
     'top-left': 'top-2.5 left-2.5',

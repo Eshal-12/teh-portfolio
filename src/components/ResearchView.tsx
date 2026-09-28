@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Cpu, Award, Globe, Check, Copy, Maximize2, X, Camera } from 'lucide-react';
 import { projectsList, publicationsList } from '../data';
 import { EditableImage } from './EditableImage';
-import { getSavedImage, saveImage } from '../utils/imageStorage';
 
 export default function ResearchView() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -95,7 +94,7 @@ export default function ResearchView() {
                           aspectRatio="aspect-[16/9]"
                           onViewFull={() => setPreviewImage({
                             id: imageStorageId,
-                            src: getSavedImage(imageStorageId, project.image),
+                            src: project.image,
                             title: project.title,
                             subtitle: `${project.sponsor} · ${project.year}`
                           })}

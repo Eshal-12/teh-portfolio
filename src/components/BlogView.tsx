@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { BlogItem } from '../types';
 import { EditableImage } from './EditableImage';
-import { getSavedImage } from '../utils/imageStorage';
 import blogLabInfraImg from '../assets/images/blog_lab_infra.jpg';
 import blogBiseDataImg from '../assets/images/blog_bise_data.jpg';
 
