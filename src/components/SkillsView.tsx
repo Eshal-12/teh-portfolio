@@ -32,7 +32,7 @@ export default function SkillsView() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
+    visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 100 } }
   };
 
   const handleFormSubmit = (e?: React.FormEvent) => {
