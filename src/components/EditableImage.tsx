@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Maximize2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Maximize2, Camera, RotateCcw } from 'lucide-react';
+import { getSavedImage, saveImage, removeSavedImage, hasSavedCustomImage } from '../utils/imageStorage';
 
 interface EditableImageProps {
   id: string; // unique storage key
@@ -26,16 +27,87 @@ export const EditableImage: React.FC<EditableImageProps> = ({
   containerClassName = '',
   aspectRatio = 'aspect-[4/3]',
   onViewFull,
+  onImageChanged,
   showBadge,
   badgePosition = 'top-left',
+  allowUpload = false,
+  uploadButtonLabel = 'Upload Picture',
   hideHoverTag = false
 }) => {
-  const [currentSrc, setCurrentSrc] = useState<string>(src);
+  // Always load saved image if present, otherwise default to bundled src
+  const [currentSrc, setCurrentSrc] = useState<string>(() => {
+    return getSavedImage(id, src);
+  });
+  const [customSaved, setCustomSaved] = useState<boolean>(() => {
+    return hasSavedCustomImage(id);
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync if prop changes
+  // Sync when prop or saved image changes
   useEffect(() => {
+    const saved = getSavedImage(id, src);
+    setCurrentSrc(saved);
+    setCustomSaved(hasSavedCustomImage(id));
+  }, [src, id]);
+
+  // Listen for storage events across components
+  useEffect(() => {
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ key: string; dataUrl: string }>;
+      if (customEvent.detail && customEvent.detail.key === id) {
+        setCurrentSrc(customEvent.detail.dataUrl);
+        setCustomSaved(true);
+      }
+    };
+
+    const handleRemove = (e: Event) => {
+      const customEvent = e as CustomEvent<{ key: string }>;
+      if (customEvent.detail && customEvent.detail.key === id) {
+        setCurrentSrc(src);
+        setCustomSaved(false);
+      }
+    };
+
+    window.addEventListener('custom_image_updated', handleUpdate);
+    window.addEventListener('custom_image_removed', handleRemove);
+    return () => {
+      window.removeEventListener('custom_image_updated', handleUpdate);
+      window.removeEventListener('custom_image_removed', handleRemove);
+    };
+  }, [id, src]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check size limit (15MB)
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Selected image exceeds 15MB limit. Please choose a smaller image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const dataUrl = uploadEvent.target?.result as string;
+      if (dataUrl) {
+        saveImage(id, dataUrl);
+        setCurrentSrc(dataUrl);
+        setCustomSaved(true);
+        onImageChanged?.(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input so re-selecting same file works
+    e.target.value = '';
+  };
+
+  const handleResetImage = () => {
+    removeSavedImage(id);
     setCurrentSrc(src);
-  }, [src]);
+    setCustomSaved(false);
+    onImageChanged?.(src);
+  };
 
   const badgePositionClasses = {
     'top-left': 'top-2.5 left-2.5',
@@ -57,6 +129,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
         referrerPolicy="no-referrer"
         onError={(e) => {
           if (currentSrc !== src) {
+            // Revert back to original src if customSrc failed
             setCurrentSrc(src);
           } else {
             // Strip Vite's hash if present (e.g. name-B8zdGINM.jpg -> name.jpg)
@@ -77,6 +150,45 @@ export const EditableImage: React.FC<EditableImageProps> = ({
         </div>
       )}
 
+      {/* Upload button only rendered when allowUpload is explicitly true */}
+      {allowUpload && (
+        <div className="absolute bottom-2.5 right-2.5 z-20 flex items-center gap-1.5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              fileInputRef.current?.click();
+            }}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#1C1B19]/90 hover:bg-[#1C1B19] text-white text-[10px] font-mono font-bold tracking-wide rounded-md shadow-md transition-all cursor-pointer backdrop-blur-md border border-white/25 active:scale-95"
+            title="Upload new picture"
+          >
+            <Camera className="w-3.5 h-3.5 text-white" />
+            <span>{uploadButtonLabel}</span>
+          </button>
+
+          {customSaved && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleResetImage();
+              }}
+              className="p-1.5 bg-[#1C1B19]/90 hover:bg-red-800 text-white rounded-md shadow-md transition-all cursor-pointer backdrop-blur-md border border-white/25 active:scale-95"
+              title="Reset to original picture"
+            >
+              <RotateCcw className="w-3 h-3 text-white" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Subtle hover overlay for viewing full size if onViewFull is available */}
       {onViewFull && !hideHoverTag && (
         <div className="absolute inset-0 bg-gradient-to-t from-[#1C1B19]/60 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end justify-between p-3 text-white z-10 pointer-events-none">
@@ -89,4 +201,3 @@ export const EditableImage: React.FC<EditableImageProps> = ({
     </div>
   );
 };
-
