@@ -134,8 +134,9 @@ export const EditableImage: React.FC<EditableImageProps> = ({
           } else {
             // Strip Vite's hash if present (e.g. name-B8zdGINM.jpg -> name.jpg)
             const rawFilename = src.split('/').pop()?.split('?')[0] || '';
-            const unhashed = rawFilename.replace(/-[A-Za-z0-9_-]{8,}(\.[a-zA-Z0-9]+)$/, '$1');
+            const unhashed = rawFilename.replace(/-[A-Za-z0-9]{8}(\.[a-zA-Z0-9]+)$/, '$1');
             const target = e.currentTarget;
+            target.onerror = null; // Prevent loop
             if (unhashed && !target.src.endsWith(`/${unhashed}`)) {
               target.src = `/${unhashed}`;
             }
