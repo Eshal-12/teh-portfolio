@@ -31,6 +31,26 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [currentPage]);
 
+  // Auto-sync any custom pictures saved in user's browser localStorage to project repository files
+  useEffect(() => {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('custom_img_v2_')) {
+          const target = key.replace('custom_img_v2_', '');
+          const dataUrl = localStorage.getItem(key);
+          if (dataUrl && dataUrl.startsWith('data:image/')) {
+            fetch('/api/upload-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: dataUrl, target })
+            }).catch(() => {});
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
