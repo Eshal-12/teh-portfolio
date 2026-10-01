@@ -16,14 +16,17 @@ import laptopImg from './assets/images/gallery_gal-pmy_user.jpg';
 import thermalImg from './assets/images/thermal_project_1784096244618.jpg';
 import chequeImg from './assets/images/winner_cheque_1784096261028.jpg';
 import cyberImg from './assets/images/cyber_telecom_ai_1790437242452.jpg';
-import pecLicenseImg from './assets/images/achievement_ach-pec_user.jpg';
+
+// Embedded Base64 images directly integrated into application source code
+import { embeddedDeanListImage, embeddedPecEngineerImage } from './assets/embeddedImages';
+const achDeanImg = embeddedDeanListImage;
+const achPecImg = embeddedPecEngineerImage;
+const pecLicenseImg = embeddedPecEngineerImage;
 
 // Uploaded & customized visual assets directly bundled into source code
 import combatVehicleDemoImg from './assets/images/combat_vehicle_demo.jpg';
 import uetMardanPrizeImg from './assets/images/uet_mardan_prize.jpg';
-import achDeanImg from './assets/images/achievement_ach-dean_user.jpg';
 import achOpenWinnerImg from './assets/images/achievement_ach-open-winner_user.jpg';
-import achPecImg from './assets/images/achievement_ach-pec_user.jpg';
 import achPmyImg from './assets/images/achievement_ach-pmy_user.jpg';
 
 import galConvocationImg from './assets/images/gallery_gal-convocation_user.jpg';
